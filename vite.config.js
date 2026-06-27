@@ -233,8 +233,10 @@ function analisisMiddleware(env) {
           body: JSON.stringify({
             model: DEEPSEEK_MODEL,
             messages: apiMessages,
-            max_tokens: 200,
+            max_tokens: 300,
             temperature: 0.5,
+            // Disable thinking mode so all tokens go to the final answer
+            thinking: { type: 'disabled' },
           }),
         })
         if (!upstream.ok) {

@@ -4,23 +4,29 @@ import { motion } from 'framer-motion'
 /**
  * BotSuggestion — non-intrusive short suggestion banner from DilBot.
  *
- * Auto-retries up to 3 times if the bot returns an empty or
- * suspiciously short response (which can happen when DeepSeek's
- * reasoning mode uses all the tokens for thinking and leaves
- * little for the final answer).
+ * Auto-retries up to 3 times with timeout. If still empty, shows
+ * a "Reintentar" button so the user can always recover.
  */
+const MAX_ATTEMPTS = 3
+const ATTEMPT_TIMEOUT_MS = 12000
+const RETRY_BACKOFF_MS = 700
+
 export default function BotSuggestion({ prediction, familyPredictions = [], match = null }) {
   const [loading, setLoading] = useState(false)
   const [suggestion, setSuggestion] = useState('')
   const [dismissed, setDismissed] = useState(false)
   const [error, setError] = useState('')
-  const [retryNonce, setRetryNonce] = useState(0)
   const [attempt, setAttempt] = useState(0)
+  const [retryNonce, setRetryNonce] = useState(0)
   const mountedRef = useRef(true)
+  const timeoutRef = useRef(null)
 
   useEffect(() => {
     mountedRef.current = true
-    return () => { mountedRef.current = false }
+    return () => {
+      mountedRef.current = false
+      if (timeoutRef.current) clearTimeout(timeoutRef.current)
+    }
   }, [])
 
   useEffect(() => {
@@ -42,33 +48,41 @@ export default function BotSuggestion({ prediction, familyPredictions = [], matc
     const matchContext = match || { home: 'Colombia', away: 'Portugal', status: 'TIMED' }
 
     async function callBot() {
-      const res = await fetch('/api/analisis', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          messages: [
-            {
-              role: 'user',
-              content: 'Mi pronóstico es ' + prediction.colombia_score + '-' + prediction.portugal_score + '. Dame una sugerencia MUY breve (máx 25 palabras) sobre si debería mantenerlo o ajustarlo. Sin repetir el marcador. Solo un consejo directo.',
+      const controller = new AbortController()
+      const t = setTimeout(() => controller.abort(), ATTEMPT_TIMEOUT_MS)
+      try {
+        const res = await fetch('/api/analisis', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            messages: [
+              {
+                role: 'user',
+                content: 'Mi pronóstico es ' + prediction.colombia_score + '-' + prediction.portugal_score + '. Dame una sugerencia MUY breve (máx 25 palabras) sobre si debería mantenerlo o ajustarlo. Sin repetir el marcador. Solo un consejo directo.',
+              },
+            ],
+            context: {
+              family_predictions: family,
+              match: {
+                home: matchContext.home || 'Colombia',
+                away: matchContext.away || 'Portugal',
+                status: matchContext.status || 'TIMED',
+                score: matchContext.score || null,
+                competition: matchContext.competition || 'Mundial FIFA 2026',
+              },
             },
-          ],
-          context: {
-            family_predictions: family,
-            match: {
-              home: matchContext.home || 'Colombia',
-              away: matchContext.away || 'Portugal',
-              status: matchContext.status || 'TIMED',
-              score: matchContext.score || null,
-              competition: matchContext.competition || 'Mundial FIFA 2026',
-            },
-          },
-        }),
-      })
-      return res
+          }),
+          signal: controller.signal,
+        })
+        clearTimeout(t)
+        return res
+      } catch (err) {
+        clearTimeout(t)
+        throw err
+      }
     }
 
     async function fetchWithRetry() {
-      const MAX_ATTEMPTS = 3
       for (let i = 0; i < MAX_ATTEMPTS; i++) {
         if (cancelled || !mountedRef.current) return
         setAttempt(i + 1)
@@ -77,7 +91,10 @@ export default function BotSuggestion({ prediction, familyPredictions = [], matc
           if (cancelled || !mountedRef.current) return
           if (!res.ok) {
             const data = await res.json().catch(() => ({}))
-            if (mountedRef.current) setError(data?.message || 'No pude consultar a DilBot')
+            if (mountedRef.current) {
+              setError(data?.message || 'No pude consultar a DilBot')
+              setLoading(false)
+            }
             return
           }
           const data = await res.json()
@@ -85,21 +102,25 @@ export default function BotSuggestion({ prediction, familyPredictions = [], matc
           const reply = (data?.reply || '').trim()
           // Treat suspiciously short / "Sin respuesta" as failure → retry
           if (reply && reply.length >= 8 && !/^sin respuesta/i.test(reply)) {
-            if (mountedRef.current) setSuggestion(reply)
+            if (mountedRef.current) {
+              setSuggestion(reply)
+              setLoading(false)
+            }
             return
           }
-          // Otherwise loop and retry
         } catch (err) {
           if (cancelled || !mountedRef.current) return
-          if (i === MAX_ATTEMPTS - 1 && mountedRef.current) {
-            setError(err?.message || 'Error de red')
-          }
+          // Timeout or network — will retry
         }
-        // Small backoff between attempts
-        await new Promise((r) => setTimeout(r, 600))
+        // Backoff between attempts
+        if (i < MAX_ATTEMPTS - 1) {
+          await new Promise((r) => setTimeout(r, RETRY_BACKOFF_MS))
+        }
       }
+      // All attempts exhausted
       if (mountedRef.current && !cancelled) {
-        setError('DilBot no respondió. Intenta de nuevo.')
+        setError('DilBot no respondió. Toca ↻ para reintentar.')
+        setLoading(false)
       }
     }
 
@@ -131,16 +152,15 @@ export default function BotSuggestion({ prediction, familyPredictions = [], matc
             <p className="text-[10px] uppercase tracking-widest text-yellow-300/80 font-bold">
               Sugerencia de DilBot
             </p>
-            <div className="flex items-center gap-1">
-              {(error || (!loading && !suggestion)) && (
-                <button
-                  onClick={() => setRetryNonce((n) => n + 1)}
-                  className="text-[10px] text-yellow-300 hover:text-yellow-200 transition-colors"
-                  title="Reintentar"
-                >
-                  ↻
-                </button>
-              )}
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={() => setRetryNonce((n) => n + 1)}
+                disabled={loading}
+                className="text-[10px] text-yellow-300 hover:text-yellow-200 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                title="Reintentar"
+              >
+                ↻
+              </button>
               <button
                 onClick={() => setDismissed(true)}
                 className="text-slate-500 hover:text-white transition-colors"
@@ -156,7 +176,7 @@ export default function BotSuggestion({ prediction, familyPredictions = [], matc
           {loading && (
             <p className="text-xs text-slate-400 flex items-center gap-1.5">
               <span className="inline-block w-2 h-2 rounded-full bg-yellow-300/60 animate-pulse" />
-              {attempt > 1 ? `DilBot pensando (intento ${attempt}/3)…` : 'DilBot analizando tu pronóstico…'}
+              {attempt > 1 ? `DilBot pensando (intento ${attempt}/${MAX_ATTEMPTS})…` : 'DilBot analizando tu pronóstico…'}
             </p>
           )}
           {error && !loading && (
