@@ -114,7 +114,7 @@ export default function Prediction({ onViewPrediction }) {
             {predLoading ? (
               <p className="text-center text-slate-500 text-sm py-6">Cargando…</p>
             ) : (
-              <PredictionForm onSaved={handleSaved} />
+              <PredictionForm onSaved={handleSaved} forceEditable={editing} />
             )}
           </div>
         </SectionCard>

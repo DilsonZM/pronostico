@@ -5,12 +5,17 @@ import Button from './Button'
 import ScoreStepper from './ScoreStepper'
 import { usePrediction } from '../../context/PredictionContext'
 
-export default function PredictionForm({ onSaved }) {
+export default function PredictionForm({ onSaved, forceEditable = false }) {
   const { prediction, saving, deadlinePassed, savePrediction } = usePrediction()
   const [colombiaScore, setColombiaScore] = useState(0)
   const [portugalScore, setPortugalScore] = useState(0)
   const [error, setError] = useState('')
-  const [isEditing, setIsEditing] = useState(false)
+  const [isEditing, setIsEditing] = useState(forceEditable)
+
+  // When parent toggles forceEditable, sync the local state
+  useEffect(() => {
+    setIsEditing(forceEditable)
+  }, [forceEditable])
 
   useEffect(() => {
     if (prediction) {
@@ -43,7 +48,7 @@ export default function PredictionForm({ onSaved }) {
   }
 
   const isUpdate = !!prediction
-  const readOnly = isUpdate && !isEditing
+  const readOnly = isUpdate && !isEditing && !forceEditable
 
   return (
     <form onSubmit={handleSave} className="w-full">
