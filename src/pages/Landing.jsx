@@ -56,10 +56,10 @@ export default function Landing({ onEnter }) {
           className="text-center space-y-2"
         >
           <p className="text-dark-300 text-lg font-medium">
-            Amistoso Internacional 2026
+            Copa Mundial FIFA 2026
           </p>
           <p className="text-dark-500 text-sm">
-            28 de Junio · 8:00 PM UTC
+            27 de Junio · 11:30 PM UTC
           </p>
         </motion.div>
 
