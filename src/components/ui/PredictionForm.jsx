@@ -76,16 +76,9 @@ export default function PredictionForm({ onSaved }) {
       )}
 
       {readOnly ? (
-        <Button
-          type="button"
-          size="lg"
-          fullWidth
-          variant="secondary"
-          onClick={() => setIsEditing(true)}
-          icon="✏️"
-        >
-          Editar mi pronóstico
-        </Button>
+        <p className="text-[10px] text-center text-slate-500 py-2">
+          🔒 No se puede editar después del partido
+        </p>
       ) : (
         <Button
           type="submit"

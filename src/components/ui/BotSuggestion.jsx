@@ -1,27 +1,43 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 /**
- * BotSuggestion — non-intrusive suggestion banner from the AI bot
+ * BotSuggestion — non-intrusive short suggestion banner
  *
- * Appears when the user opens their "Ver detalles" view.
- * Asks Predicto for a single, brief suggestion. If the bot has
- * something to recommend, it shows the suggestion card. Otherwise
- * the banner stays dismissed.
+ * Calls /api/analisis with a focused prompt asking for a brief
+ * suggestion about whether to keep or adjust the user's prediction.
  */
 export default function BotSuggestion({ prediction, familyPredictions = [], match = null }) {
   const [loading, setLoading] = useState(false)
-  const [suggestion, setSuggestion] = useState(null)
+  const [suggestion, setSuggestion] = useState('')
   const [dismissed, setDismissed] = useState(false)
   const [error, setError] = useState('')
+  const [retryNonce, setRetryNonce] = useState(0)
+  const mountedRef = useRef(true)
 
   useEffect(() => {
-    if (!prediction || dismissed) return
-    let cancelled = false
+    mountedRef.current = true
+    return () => { mountedRef.current = false }
+  }, [])
 
-    async function load() {
-      setLoading(true)
-      setError('')
+  useEffect(() => {
+    if (!prediction || !prediction.user_id) return
+    let cancelled = false
+    setLoading(true)
+    setError('')
+    setSuggestion('')
+
+    const family = (familyPredictions || [])
+      .filter((p) => p && p.user_id !== prediction.user_id)
+      .map((p) => ({
+        display_name: p.profile?.display_name || 'Anónimo',
+        colombia: p.colombia_score,
+        portugal: p.portugal_score,
+      }))
+
+    const matchContext = match || { home: 'Colombia', away: 'Portugal', status: 'TIMED' }
+
+    ;(async () => {
       try {
         const res = await fetch('/api/analisis', {
           method: 'POST',
@@ -30,61 +46,73 @@ export default function BotSuggestion({ prediction, familyPredictions = [], matc
             messages: [
               {
                 role: 'user',
-                content: 'Tengo un pronóstico guardado. Dame una sugerencia MUY breve (máx 35 palabras): ¿debería mantenerlo o ajustarlo? No me des el marcador otra vez, solo un consejo directo.',
+                content: 'Tengo este pronóstico: ' + prediction.colombia_score + '-' + prediction.portugal_score + '. Dame una sugerencia MUY breve (máx 30 palabras) sobre si debería mantenerlo o ajustarlo. Sin repetir el marcador. Solo un consejo directo.',
               },
             ],
             context: {
-              family_predictions: familyPredictions.map((p) => ({
-                display_name: p.profile?.display_name || 'Anónimo',
-                colombia: p.colombia_score,
-                portugal: p.portugal_score,
-              })),
-              match: match || { home: 'Colombia', away: 'Portugal', status: 'TIMED' },
+              family_predictions: family,
+              match: {
+                home: matchContext.home || 'Colombia',
+                away: matchContext.away || 'Portugal',
+                status: matchContext.status || 'TIMED',
+                score: matchContext.score || null,
+                competition: matchContext.competition || 'Mundial FIFA 2026',
+              },
             },
           }),
         })
+        if (cancelled || !mountedRef.current) return
         const data = await res.json()
-        if (cancelled) return
+        if (cancelled || !mountedRef.current) return
         if (!res.ok) {
-          setError(data?.message || 'No pude consultar al bot')
+          setError(data?.message || data?.error || 'No pude consultar al bot')
           return
         }
-        setSuggestion(data.reply || '')
+        setSuggestion(data.reply || 'Sin respuesta del bot.')
       } catch (err) {
-        if (!cancelled) setError(err?.message || 'Error de red')
+        if (cancelled || !mountedRef.current) return
+        setError(err?.message || 'Error de red')
       } finally {
-        if (!cancelled) setLoading(false)
+        if (mountedRef.current) setLoading(false)
       }
-    }
+    })()
 
-    load()
     return () => { cancelled = true }
-  }, [prediction, dismissed])
+  }, [prediction?.id, prediction?.colombia_score, prediction?.portugal_score, retryNonce])
 
   if (dismissed) return null
 
   return (
-    <AnimatePresence>
-      <motion.div
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -8 }}
-        transition={{ duration: 0.35 }}
-        className="rounded-2xl border border-yellow-400/20 bg-yellow-500/5 px-4 py-3"
-      >
-        <div className="flex items-start gap-2.5">
-          <div
-            className="w-7 h-7 shrink-0 rounded-full flex items-center justify-center text-sm"
-            style={{ background: 'linear-gradient(135deg, #006600 0%, #FCD116 100%)' }}
-            aria-hidden
-          >
-            🤖
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center justify-between gap-2 mb-1">
-              <p className="text-[10px] uppercase tracking-widest text-yellow-300/80 font-bold">
-                Sugerencia de Predicto
-              </p>
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -8 }}
+      transition={{ duration: 0.35 }}
+      className="rounded-2xl border border-yellow-400/20 bg-yellow-500/5 px-4 py-3"
+    >
+      <div className="flex items-start gap-2.5">
+        <div
+          className="w-7 h-7 shrink-0 rounded-full flex items-center justify-center text-sm"
+          style={{ background: 'linear-gradient(135deg, #006600 0%, #FCD116 100%)' }}
+          aria-hidden
+        >
+          🤖
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center justify-between gap-2 mb-1">
+            <p className="text-[10px] uppercase tracking-widest text-yellow-300/80 font-bold">
+              Sugerencia de Predicto
+            </p>
+            <div className="flex items-center gap-1">
+              {(error || (!loading && !suggestion)) && (
+                <button
+                  onClick={() => setRetryNonce((n) => n + 1)}
+                  className="text-[10px] text-yellow-300 hover:text-yellow-200 transition-colors"
+                  title="Reintentar"
+                >
+                  ↻
+                </button>
+              )}
               <button
                 onClick={() => setDismissed(true)}
                 className="text-slate-500 hover:text-white transition-colors"
@@ -96,23 +124,23 @@ export default function BotSuggestion({ prediction, familyPredictions = [], matc
                 </svg>
               </button>
             </div>
-            {loading && (
-              <p className="text-xs text-slate-400 flex items-center gap-1.5">
-                <span className="inline-block w-2 h-2 rounded-full bg-yellow-300/60 animate-pulse" />
-                Analizando tu pronóstico…
-              </p>
-            )}
-            {error && !loading && (
-              <p className="text-xs text-slate-500">{error}</p>
-            )}
-            {suggestion && !loading && (
-              <p className="text-sm text-slate-100 leading-relaxed">
-                {suggestion}
-              </p>
-            )}
           </div>
+          {loading && (
+            <p className="text-xs text-slate-400 flex items-center gap-1.5">
+              <span className="inline-block w-2 h-2 rounded-full bg-yellow-300/60 animate-pulse" />
+              Analizando tu pronóstico…
+            </p>
+          )}
+          {error && !loading && (
+            <p className="text-xs text-slate-500">{error}</p>
+          )}
+          {suggestion && !loading && (
+            <p className="text-sm text-slate-100 leading-relaxed">
+              {suggestion}
+            </p>
+          )}
         </div>
-      </motion.div>
-    </AnimatePresence>
+      </div>
+    </motion.div>
   )
 }

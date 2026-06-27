@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import {
   MatchHero,
@@ -8,7 +8,6 @@ import {
   LivePredictionsFeed,
   SectionCard,
   BotSuggestion,
-  Button,
 } from '../components/ui'
 import { PageContainer } from '../components/layout'
 import { usePrediction } from '../context/PredictionContext'
@@ -34,12 +33,28 @@ export default function Prediction({ onViewPrediction }) {
   } = useLiveData()
 
   const canEdit = !isPast(MATCH_DEADLINE) && !isFinished
+  const [editing, setEditing] = useState(false)
   const formRef = useRef(null)
 
-  function handleEditClick() {
-    // Navigate to MyPrediction and scroll to the form
-    if (onViewPrediction) onViewPrediction()
+  // When user clicks Edit, enter edit mode and scroll to the form
+  function handleStartEdit() {
+    if (!canEdit) return
+    setEditing(true)
   }
+
+  // After save, exit edit mode and scroll back to the score
+  function handleSaved() {
+    setEditing(false)
+  }
+
+  // When editing mode is on, scroll the form into view
+  useEffect(() => {
+    if (editing && formRef.current) {
+      setTimeout(() => {
+        formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }, 100)
+    }
+  }, [editing])
 
   return (
     <PageContainer>
@@ -68,22 +83,12 @@ export default function Prediction({ onViewPrediction }) {
         onRefresh={refreshLive}
       />
 
-      {prediction ? (
+      {/* If user has a prediction, show score card (with optional edit icon).
+          When they tap edit, we toggle into edit mode and show the form. */}
+      {prediction && !editing && (
         <>
           <SectionCard title="Tu pronóstico" delay={0.05}>
-            <MyPredictionCard prediction={prediction} />
-            {canEdit && (
-              <div className="mt-4 pt-4 border-t border-white/5 flex items-center justify-center">
-                <Button
-                  size="md"
-                  variant="secondary"
-                  onClick={handleEditClick}
-                  icon="✏️"
-                >
-                  Editar marcador
-                </Button>
-              </div>
-            )}
+            <MyPredictionCard prediction={prediction} onEdit={canEdit ? handleStartEdit : null} />
             {!canEdit && (
               <p className="text-[10px] text-center text-slate-500 mt-3">
                 🔒 No se puede editar después del partido
@@ -91,23 +96,25 @@ export default function Prediction({ onViewPrediction }) {
             )}
           </SectionCard>
 
-          {/* Short bot suggestion just below the score card */}
           <BotSuggestion
             prediction={prediction}
             familyPredictions={predictions}
             match={liveMatch}
           />
         </>
-      ) : (
+      )}
+
+      {/* Edit mode OR no prediction yet — show the form */}
+      {(editing || !prediction) && (
         <SectionCard
-          title="¿Cómo terminará?"
+          title={editing ? 'Editar mi marcador' : '¿Cómo terminará?'}
           delay={0.05}
         >
           <div ref={formRef}>
             {predLoading ? (
               <p className="text-center text-slate-500 text-sm py-6">Cargando…</p>
             ) : (
-              <PredictionForm />
+              <PredictionForm onSaved={handleSaved} />
             )}
           </div>
         </SectionCard>
