@@ -76,7 +76,7 @@ export default function Admin({ onBack }) {
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
             onClick={onBack}
-            className="mb-6 flex items-center gap-2 text-dark-400 hover:text-white transition-colors text-sm"
+            className="mb-6 flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M19 12H5M12 19l-7-7 7-7"/>
@@ -96,7 +96,7 @@ export default function Admin({ onBack }) {
               <h2 className="font-display text-xl font-bold text-white">
                 Panel Admin
               </h2>
-              <p className="text-sm text-dark-400 mt-1">
+              <p className="text-sm text-slate-400 mt-1">
                 Ingresa el PIN de administrador
               </p>
             </div>
@@ -135,7 +135,7 @@ export default function Admin({ onBack }) {
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
             onClick={onBack}
-            className="flex items-center gap-2 text-dark-400 hover:text-white transition-colors text-sm"
+            className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M19 12H5M12 19l-7-7 7-7"/>
@@ -182,7 +182,7 @@ export default function Admin({ onBack }) {
         >
           <StatCard label="Total" value={totalCount} icon="📊" />
           <StatCard label="Victoria COL" value={colombiaWins} icon="🇨🇴" color="text-colombia-yellow" />
-          <StatCard label="Empates" value={draws} icon="🤝" color="text-dark-300" />
+          <StatCard label="Empates" value={draws} icon="🤝" color="text-slate-300" />
           <StatCard label="Victoria POR" value={portugalWins} icon="🇵🇹" color="text-emerald-400" />
         </motion.div>
 
@@ -194,19 +194,19 @@ export default function Admin({ onBack }) {
           className="glass rounded-2xl p-4 flex items-center justify-around"
         >
           <div className="text-center">
-            <span className="text-xs text-dark-500 uppercase tracking-wider">Promedio COL</span>
+            <span className="text-xs text-slate-500 uppercase tracking-wider">Promedio COL</span>
             <p className="font-display text-2xl font-bold text-colombia-yellow">{avgColombia}</p>
           </div>
           <div className="w-px h-12 bg-white/10" />
           <div className="text-center">
-            <span className="text-xs text-dark-500 uppercase tracking-wider">Promedio POR</span>
+            <span className="text-xs text-slate-500 uppercase tracking-wider">Promedio POR</span>
             <p className="font-display text-2xl font-bold text-emerald-400">{avgPortugal}</p>
           </div>
         </motion.div>
 
         {/* Sort */}
         <div className="flex items-center gap-2">
-          <span className="text-xs text-dark-500">Ordenar:</span>
+          <span className="text-xs text-slate-500">Ordenar:</span>
           {[
             { key: 'created_at', label: 'Fecha' },
             { key: 'name', label: 'Nombre' },
@@ -219,7 +219,7 @@ export default function Admin({ onBack }) {
               className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors ${
                 sortBy === opt.key
                   ? 'bg-white/10 text-white'
-                  : 'text-dark-500 hover:text-white'
+                  : 'text-slate-500 hover:text-white'
               }`}
             >
               {opt.label}
@@ -237,7 +237,7 @@ export default function Admin({ onBack }) {
           {sortedPredictions.length === 0 ? (
             <div className="glass rounded-2xl p-8 text-center">
               <span className="text-4xl mb-4 block">📭</span>
-              <p className="text-dark-400">No hay pronósticos aún</p>
+              <p className="text-slate-400">No hay pronósticos aún</p>
             </div>
           ) : (
             sortedPredictions.map((pred, i) => {
@@ -277,7 +277,7 @@ export default function Admin({ onBack }) {
                           </span>
                         )}
                       </div>
-                      <p className="text-[10px] text-dark-500">
+                      <p className="text-[10px] text-slate-500">
                         {new Date(pred.created_at).toLocaleString('es-CO', {
                           day: 'numeric',
                           month: 'short',
@@ -296,7 +296,7 @@ export default function Admin({ onBack }) {
                     <span className="font-display text-xl font-bold text-white">
                       {pred.colombia_score}
                     </span>
-                    <span className="text-dark-600 font-bold">-</span>
+                    <span className="text-slate-600 font-bold">-</span>
                     <span className="font-display text-xl font-bold text-white">
                       {pred.portugal_score}
                     </span>
@@ -311,7 +311,7 @@ export default function Admin({ onBack }) {
 
         {/* Deadline info */}
         <div className="glass rounded-2xl p-4 text-center">
-          <p className="text-xs text-dark-500">
+          <p className="text-xs text-slate-500">
             🔒 Deadline: {MATCH_DEADLINE.toLocaleString('es-CO', {
               day: 'numeric',
               month: 'long',
@@ -321,7 +321,7 @@ export default function Admin({ onBack }) {
               timeZoneName: 'short',
             })}
           </p>
-          <p className="text-xs text-dark-600 mt-1">
+          <p className="text-xs text-slate-600 mt-1">
             {new Date() >= MATCH_DEADLINE ? '⚠️ Pronósticos cerrados' : '✅ Pronósticos abiertos'}
           </p>
         </div>
@@ -335,7 +335,7 @@ function StatCard({ label, value, icon, color = 'text-white' }) {
     <div className="glass rounded-2xl p-4 text-center">
       <span className="text-xl">{icon}</span>
       <p className={`font-display text-2xl font-bold ${color} mt-1`}>{value}</p>
-      <p className="text-[10px] text-dark-500 uppercase tracking-wider mt-1">{label}</p>
+      <p className="text-[10px] text-slate-500 uppercase tracking-wider mt-1">{label}</p>
     </div>
   )
 }

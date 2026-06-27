@@ -15,15 +15,14 @@ const PAGES = {
 }
 
 const pageTransition = {
-  initial: { opacity: 0, x: 20 },
-  animate: { opacity: 1, x: 0 },
-  exit: { opacity: 0, x: -20 },
+  initial: { opacity: 0, y: 12 },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -8 },
   transition: { duration: 0.3, ease: 'easeInOut' },
 }
 
 export default function App() {
   const { isAuthenticated, loading: authLoading } = useAuth()
-  const { loading: predLoading } = usePrediction()
   const [currentPage, setCurrentPage] = useState(PAGES.LANDING)
 
   const navigate = useCallback((page) => {
@@ -31,14 +30,11 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }, [])
 
-  // Show loading screen during initial auth check
   if (authLoading) {
     return <LoadingScreen message="Preparando tu experiencia..." />
   }
 
-  // Determine which page to show
   const getPage = () => {
-    // If not authenticated, show landing or login
     if (!isAuthenticated) {
       switch (currentPage) {
         case PAGES.LOGIN:
@@ -49,11 +45,10 @@ export default function App() {
             />
           )
         default:
-          return <Landing onEnter={() => navigate(PAGES.LOGIN)} />
+          return <Landing />
       }
     }
 
-    // Authenticated pages
     switch (currentPage) {
       case PAGES.ADMIN:
         return <Admin onBack={() => navigate(PAGES.PREDICTION)} />
@@ -68,17 +63,19 @@ export default function App() {
       default:
         return (
           <Prediction
-            onSaved={() => {}}
             onViewPrediction={() => navigate(PAGES.MY_PREDICTION)}
           />
         )
     }
   }
 
-  const showHeader = isAuthenticated && currentPage !== PAGES.LANDING
+  const showHeader = isAuthenticated
 
   return (
-    <div className="min-h-[100dvh] flex flex-col bg-dark-900">
+    <div
+      className="min-h-[100dvh] flex flex-col"
+      style={{ background: '#020617' }}
+    >
       {showHeader && (
         <Header onAdminClick={() => navigate(PAGES.ADMIN)} />
       )}

@@ -106,8 +106,8 @@ export const STATUS_LABELS = {
  * Status colors for visual styling
  */
 export const STATUS_COLORS = {
-  SCHEDULED: 'text-dark-400',
-  TIMED: 'text-dark-400',
+  SCHEDULED: 'text-slate-400',
+  TIMED: 'text-slate-400',
   IN_PLAY: 'text-red-400',
   PAUSED: 'text-amber-400',
   FINISHED: 'text-emerald-400',

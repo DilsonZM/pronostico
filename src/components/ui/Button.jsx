@@ -1,12 +1,12 @@
 import { motion } from 'framer-motion'
 
 const variants = {
-  primary: 'bg-gradient-to-r from-colombia-yellow to-amber-500 text-dark-900 font-bold hover:from-amber-400 hover:to-colombia-yellow',
+  primary: 'bg-gradient-to-r from-colombia-yellow to-amber-500 text-slate-900 font-bold hover:from-amber-400 hover:to-colombia-yellow',
   secondary: 'glass text-white hover:bg-white/10',
   success: 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white font-bold hover:from-emerald-400 hover:to-emerald-500',
   danger: 'bg-gradient-to-r from-red-500 to-red-600 text-white font-bold hover:from-red-400 hover:to-red-500',
   outline: 'border-2 border-white/20 text-white hover:bg-white/10 hover:border-white/30',
-  ghost: 'text-dark-400 hover:text-white hover:bg-white/5',
+  ghost: 'text-slate-400 hover:text-white hover:bg-white/5',
 }
 
 const sizes = {

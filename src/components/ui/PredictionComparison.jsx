@@ -21,10 +21,10 @@ export default function PredictionComparison({ prediction, liveMatch }) {
         <div className="flex items-center gap-3">
           <span className="text-xl">⏳</span>
           <div>
-            <p className="text-sm font-medium text-dark-300">
+            <p className="text-sm font-medium text-slate-300">
               Comparación pendiente
             </p>
-            <p className="text-xs text-dark-500">
+            <p className="text-xs text-slate-500">
               Se comparará tu pronóstico cuando el partido termine
             </p>
           </div>
@@ -49,7 +49,7 @@ export default function PredictionComparison({ prediction, liveMatch }) {
         <span className="text-3xl mb-1 block">{result.badge}</span>
         <p className={`text-sm font-bold ${result.color}`}>{result.label}</p>
         {result.points > 0 && (
-          <p className="text-xs text-dark-500 mt-1">
+          <p className="text-xs text-slate-500 mt-1">
             +{result.points} {result.points === 1 ? 'punto' : 'puntos'}
           </p>
         )}
@@ -59,7 +59,7 @@ export default function PredictionComparison({ prediction, liveMatch }) {
       <div className="grid grid-cols-2 gap-3">
         {/* Your Prediction */}
         <div className="glass-light rounded-xl p-3 text-center">
-          <span className="text-[10px] text-dark-500 uppercase tracking-wider block mb-2">
+          <span className="text-[10px] text-slate-500 uppercase tracking-wider block mb-2">
             Tu pronóstico
           </span>
           <div className="flex items-center justify-center gap-2">
@@ -67,7 +67,7 @@ export default function PredictionComparison({ prediction, liveMatch }) {
             <span className="font-display text-xl font-bold text-white">
               {result.prediction.colombia}
             </span>
-            <span className="text-dark-600 font-bold">-</span>
+            <span className="text-slate-600 font-bold">-</span>
             <span className="font-display text-xl font-bold text-white">
               {result.prediction.portugal}
             </span>
@@ -77,7 +77,7 @@ export default function PredictionComparison({ prediction, liveMatch }) {
 
         {/* Actual Result */}
         <div className="glass-light rounded-xl p-3 text-center">
-          <span className="text-[10px] text-dark-500 uppercase tracking-wider block mb-2">
+          <span className="text-[10px] text-slate-500 uppercase tracking-wider block mb-2">
             Resultado real
           </span>
           <div className="flex items-center justify-center gap-2">
@@ -85,7 +85,7 @@ export default function PredictionComparison({ prediction, liveMatch }) {
             <span className="font-display text-xl font-bold text-white">
               {result.actual.colombia}
             </span>
-            <span className="text-dark-600 font-bold">-</span>
+            <span className="text-slate-600 font-bold">-</span>
             <span className="font-display text-xl font-bold text-white">
               {result.actual.portugal}
             </span>

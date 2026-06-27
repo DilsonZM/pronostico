@@ -67,7 +67,7 @@ export function comparePredictionWithLive(prediction, liveMatch) {
     points = 0
     badge = '❌'
     label = 'Sin puntos'
-    color = 'text-dark-400'
+    color = 'text-slate-400'
   }
 
   return {

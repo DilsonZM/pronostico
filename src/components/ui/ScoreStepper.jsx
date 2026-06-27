@@ -47,7 +47,7 @@ export default function ScoreStepper({
 
   return (
     <div className="flex flex-col items-center gap-3">
-      <span className="text-xs font-medium text-dark-400 uppercase tracking-widest">
+      <span className="text-xs font-medium text-slate-400 uppercase tracking-widest">
         {teamName}
       </span>
       <div className={`

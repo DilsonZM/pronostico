@@ -47,14 +47,14 @@ export default function LiveMatchCard({
   if (error && !match) {
     return (
       <div className="glass rounded-2xl p-5">
-        <div className="flex items-center justify-center gap-2 text-dark-500">
+        <div className="flex items-center justify-center gap-2 text-slate-500">
           <span>📡</span>
           <p className="text-sm">{error.message || 'No se pudieron cargar los datos del partido'}</p>
         </div>
         {onRefresh && (
           <button
             onClick={onRefresh}
-            className="mx-auto mt-3 flex items-center gap-1 text-xs text-dark-400 hover:text-white transition-colors"
+            className="mx-auto mt-3 flex items-center gap-1 text-xs text-slate-400 hover:text-white transition-colors"
           >
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M21 2v6h-6M3 12a9 9 0 0 1 15-6.7L21 8M3 22v-6h6M21 12a9 9 0 0 1-15 6.7L3 16" />
@@ -71,7 +71,7 @@ export default function LiveMatchCard({
     return (
       <div className="glass rounded-2xl p-5 text-center">
         <span className="text-2xl mb-2 block">📡</span>
-        <p className="text-sm text-dark-500">
+        <p className="text-sm text-slate-500">
           Partido no disponible en la API aún
         </p>
       </div>
@@ -80,7 +80,7 @@ export default function LiveMatchCard({
 
   const { homeTeam, awayTeam, score, status, utcDate } = match
   const statusLabel = STATUS_LABELS[status] || status
-  const statusColor = STATUS_COLORS[status] || 'text-dark-400'
+  const statusColor = STATUS_COLORS[status] || 'text-slate-400'
   const showScores = ['IN_PLAY', 'PAUSED', 'FINISHED', 'SUSPENDED'].includes(status)
   const showHalftime = score.halfTime?.home !== null
   const showPenalties = score.penalties?.home !== null
@@ -140,11 +140,11 @@ export default function LiveMatchCard({
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-medium text-dark-500 uppercase tracking-widest">
+          <span className="text-xs font-medium text-slate-500 uppercase tracking-widest">
             Resultado en vivo
           </span>
           {fromCache && (
-            <span className="text-[9px] text-dark-600 bg-white/5 px-1.5 py-0.5 rounded">
+            <span className="text-[9px] text-slate-600 bg-white/5 px-1.5 py-0.5 rounded">
               cache
             </span>
           )}
@@ -152,7 +152,7 @@ export default function LiveMatchCard({
         {onRefresh && (
           <button
             onClick={onRefresh}
-            className="p-1.5 rounded-lg text-dark-500 hover:text-white hover:bg-white/5 transition-colors"
+            className="p-1.5 rounded-lg text-slate-500 hover:text-white hover:bg-white/5 transition-colors"
             title="Actualizar"
           >
             <motion.svg
@@ -219,7 +219,7 @@ export default function LiveMatchCard({
             </motion.span>
           </AnimatePresence>
 
-          <span className="font-display text-2xl text-dark-600 font-bold">-</span>
+          <span className="font-display text-2xl text-slate-600 font-bold">-</span>
 
           <AnimatePresence mode="popLayout">
             <motion.span
@@ -253,7 +253,7 @@ export default function LiveMatchCard({
       {(showHalftime || showPenalties) && (
         <div className="flex items-center justify-center gap-4 mb-3 text-xs">
           {showHalftime && (
-            <span className="text-dark-500">
+            <span className="text-slate-500">
               MT: {score.halfTime.home} - {score.halfTime.away}
             </span>
           )}
@@ -268,7 +268,7 @@ export default function LiveMatchCard({
       {/* Match Date (if scheduled) */}
       {!showScores && utcDate && (
         <div className="text-center mb-3">
-          <p className="text-xs text-dark-500">
+          <p className="text-xs text-slate-500">
             {new Date(utcDate).toLocaleString('es-CO', {
               weekday: 'long',
               day: 'numeric',
@@ -284,7 +284,7 @@ export default function LiveMatchCard({
       {/* Last Updated */}
       {lastUpdated && (
         <div className="text-center">
-          <p className="text-[10px] text-dark-600">
+          <p className="text-[10px] text-slate-600">
             Actualizado: {lastUpdated.toLocaleTimeString('es-CO', {
               hour: '2-digit',
               minute: '2-digit',
