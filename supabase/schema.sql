@@ -195,7 +195,7 @@ GRANT ALL ON public.app_config TO service_role;
 INSERT INTO public.app_config (key, value) VALUES
   ('match_info', '{
     "title": "Colombia vs Portugal",
-    "subtitle": "Amistoso Internacional 2026",
+    "subtitle": "Último partido de grupos · Mundial FIFA 2026",
     "date": "28 de Junio, 2026",
     "time": "8:00 PM UTC",
     "venue": "Por confirmar",

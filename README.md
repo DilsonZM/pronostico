@@ -1,6 +1,6 @@
 # ⚽ Pronóstico - Colombia vs Portugal
 
-App web para pronósticos del partido **Colombia vs Portugal** - Amistoso Internacional 2026.
+App web para pronósticos del partido **Colombia vs Portugal** - Último partido de grupos, Mundial FIFA 2026.
 
 ## 🚀 Stack Tecnológico
 

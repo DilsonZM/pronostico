@@ -31,7 +31,7 @@ export default function MatchCard({ compact = false }) {
     >
       <div className="text-center mb-4">
         <span className="text-xs font-medium text-dark-500 uppercase tracking-widest">
-          Amistoso Internacional
+          Último partido de grupos · Mundial FIFA 2026
         </span>
       </div>
 

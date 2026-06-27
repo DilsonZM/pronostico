@@ -56,10 +56,10 @@ export default function Landing({ onEnter }) {
           className="text-center space-y-2"
         >
           <p className="text-dark-300 text-lg font-medium">
-            Copa Mundial FIFA 2026
+            Último partido de grupos · Mundial FIFA 2026
           </p>
           <p className="text-dark-500 text-sm">
-            27 de Junio · 11:30 PM UTC
+            27 de Junio · 6:30 PM <span className="text-dark-600">(Hora Colombia 🇨🇴)</span>
           </p>
         </motion.div>
 
