@@ -54,15 +54,10 @@ export default function PredictionForm({ onSaved, compact = false }) {
 
   return (
     <form onSubmit={handleSave} className="w-full">
-      {!compact && (
-        <div className="text-center mb-5">
-          <p className="text-[10px] sm:text-xs font-semibold tracking-[0.22em] uppercase text-slate-400 mb-1">
-            {isUpdate ? 'Tu pronóstico' : 'Tu marcador'}
-          </p>
-          <h2 className="font-display text-lg sm:text-xl font-bold text-white">
-            {isUpdate ? (readOnly ? 'Así pronosticaste' : 'Edita tu marcador') : '¿Cómo terminará?'}
-          </h2>
-        </div>
+      {!compact && isUpdate && (
+        <p className="text-[10px] sm:text-xs font-semibold tracking-[0.22em] uppercase text-slate-400 text-center mb-2">
+          {readOnly ? 'Tu pronóstico guardado' : 'Edita tu marcador'}
+        </p>
       )}
 
       {/* Score row */}
