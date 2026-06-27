@@ -4,9 +4,9 @@ import { formatRelative } from '../../lib/date-utils'
 import CountdownCard from './CountdownCard'
 
 /**
- * LiveMatchStrip — single inline status row
- * Replaces the bulky LiveMatchCard + CountdownCard combo.
- * Three things in one line: status · countdown · last update.
+ * LiveMatchStrip — single elegant status row
+ * Combines live status + score + countdown + last update + refresh.
+ * Replaces the bulky separate LiveMatchCard and CountdownCard.
  */
 export default function LiveMatchStrip({
   match,
@@ -17,7 +17,6 @@ export default function LiveMatchStrip({
   isFinished,
   lastUpdated,
   onRefresh,
-  fromCache,
 }) {
   const status = match?.status
   const statusLabel = status ? (STATUS_LABELS[status] || status) : null
@@ -36,14 +35,24 @@ export default function LiveMatchStrip({
 
   if (error && !match) {
     return (
-      <div className="rounded-2xl bg-slate-900/60 border border-white/5 px-4 py-3 text-xs text-slate-500">
-        📡 Sin conexión con el servidor del partido
+      <div className="rounded-2xl bg-slate-900/60 border border-white/5 px-4 py-3 text-xs text-slate-500 flex items-center justify-between">
+        <span>📡 Sin conexión con el servidor del partido</span>
+        {deadline && !isFinished && <CountdownCard deadline={deadline} />}
       </div>
     )
   }
 
   return (
-    <div className="rounded-2xl bg-slate-900/60 border border-white/5 px-4 py-3 flex items-center justify-between gap-3 text-xs">
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35 }}
+      className={`
+        rounded-2xl border bg-slate-900/60 backdrop-blur-md
+        px-4 py-3 flex items-center justify-between gap-3 text-xs
+        ${isActive ? 'border-red-500/20 shadow-[0_0_24px_-8px_rgba(239,68,68,0.4)]' : 'border-white/5'}
+      `}
+    >
       {/* Status + score */}
       <div className="flex items-center gap-2 min-w-0">
         {isActive && (
@@ -71,21 +80,24 @@ export default function LiveMatchStrip({
       )}
 
       {/* Last update + refresh */}
-      <div className="flex items-center gap-2 shrink-0 text-slate-500">
-        {lastUpdateRel && <span className="hidden sm:inline">· {lastUpdateRel}</span>}
+      <div className="flex items-center gap-1.5 shrink-0 text-slate-500">
+        {lastUpdateRel && <span className="hidden sm:inline text-[11px]">· {lastUpdateRel}</span>}
         {onRefresh && (
-          <button
+          <motion.button
+            whileTap={{ scale: 0.9 }}
+            whileHover={{ rotate: 90 }}
+            transition={{ duration: 0.2 }}
             onClick={onRefresh}
             className="p-1 rounded text-slate-500 hover:text-white transition-colors"
             title="Actualizar"
             aria-label="Actualizar marcador"
           >
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M21 2v6h-6M3 12a9 9 0 0 1 15-6.7L21 8M3 22v-6h6M21 12a9 9 0 0 1-15 6.7L3 16" />
             </svg>
-          </button>
+          </motion.button>
         )}
       </div>
-    </div>
+    </motion.div>
   )
 }

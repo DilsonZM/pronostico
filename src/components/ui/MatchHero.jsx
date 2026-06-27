@@ -2,8 +2,9 @@ import { motion } from 'framer-motion'
 import { formatMatchDate, formatMatchTime } from '../../lib/date-utils'
 
 /**
- * MatchHero — minimal
- * One line for the matchup, one line for date/time. No redundant badges.
+ * MatchHero — premium compact
+ * Single row: flag · team name · vs · flag · team name.
+ * Date/time on a second line. No redundant badges.
  */
 export default function MatchHero({ kickoffISO, competition = 'Mundial FIFA 2026' }) {
   const dateText = kickoffISO ? formatMatchDate(kickoffISO) : ''
@@ -11,26 +12,59 @@ export default function MatchHero({ kickoffISO, competition = 'Mundial FIFA 2026
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 12 }}
+      initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
+      transition={{ duration: 0.45, ease: 'easeOut' }}
       className="text-center"
     >
-      <p className="text-[10px] font-semibold tracking-[0.22em] uppercase text-slate-500 mb-1.5">
+      <p className="text-[10px] font-semibold tracking-[0.22em] uppercase text-slate-500 mb-3">
         {competition}
       </p>
-      <h1 className="font-display text-2xl sm:text-3xl font-extrabold leading-none">
-        <span className="bg-gradient-to-r from-yellow-300 to-yellow-100 bg-clip-text text-transparent">Colombia</span>
-        <span className="mx-2 text-slate-600 font-light text-lg align-middle">vs</span>
-        <span className="bg-gradient-to-r from-emerald-300 to-emerald-100 bg-clip-text text-transparent">Portugal</span>
-      </h1>
+
+      <div className="flex items-center justify-center gap-3 sm:gap-5">
+        <TeamSide flag="🇨🇴" code="COL" align="right" />
+        <motion.span
+          initial={{ opacity: 0, scale: 0.5 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.15, type: 'spring', stiffness: 220, damping: 16 }}
+          className="font-display text-xs font-bold tracking-[0.3em] text-slate-500"
+        >
+          VS
+        </motion.span>
+        <TeamSide flag="🇵🇹" code="POR" align="left" />
+      </div>
+
       {(dateText || timeText) && (
-        <p className="text-xs text-slate-400 mt-2">
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.25 }}
+          className="text-xs text-slate-400 mt-3"
+        >
           {dateText && <span className="capitalize">{dateText}</span>}
           {dateText && timeText && <span className="mx-1.5 text-slate-600">·</span>}
           {timeText && <span>{timeText} <span className="text-slate-500">COL</span></span>}
-        </p>
+        </motion.p>
       )}
     </motion.div>
+  )
+}
+
+function TeamSide({ flag, code, align }) {
+  return (
+    <div className={`flex items-center gap-2 ${align === 'right' ? 'flex-row-reverse' : ''}`}>
+      <motion.span
+        initial={{ scale: 0, rotate: align === 'right' ? -45 : 45 }}
+        animate={{ scale: 1, rotate: 0 }}
+        transition={{ type: 'spring', stiffness: 240, damping: 16, delay: 0.1 }}
+        className="text-3xl sm:text-4xl leading-none"
+        aria-hidden
+      >
+        {flag}
+      </motion.span>
+      <span className="font-display text-xs sm:text-sm font-bold text-white tracking-widest">
+        {code}
+      </span>
+    </div>
   )
 }
