@@ -32,7 +32,7 @@ export default function LivePredictionsFeed({
       ) : (
         <ul className="space-y-2.5">
           <AnimatePresence initial={false}>
-            {predictions.map((p) => {
+            {deduplicate(predictions).map((p) => {
               const verdict = computeVerdict(p, liveMatch, consensus)
               return (
                 <PredictionListItem
@@ -49,6 +49,18 @@ export default function LivePredictionsFeed({
       )}
     </SectionCard>
   )
+}
+
+function deduplicate(arr) {
+  const seen = new Set()
+  const out = []
+  for (const p of arr) {
+    if (!p || !p.id) continue
+    if (seen.has(p.id)) continue
+    seen.add(p.id)
+    out.push(p)
+  }
+  return out
 }
 
 function computeVerdict(prediction, liveMatch, consensus) {
