@@ -248,8 +248,10 @@ export default function Admin({ onBack }) {
                       )}
                     </p>
                   </div>
-                  <span className="font-mono text-sm font-bold text-white tabular-nums whitespace-nowrap">
-                    {pred.colombia_score}<span className="text-slate-500 mx-1">–</span>{pred.portugal_score}
+                  <span className="font-mono text-sm font-bold text-white tabular-nums whitespace-nowrap flex items-center gap-0.5">
+                    <span className="text-xs" aria-hidden>🇨🇴</span>
+                    {pred.colombia_score}<span className="text-slate-500 mx-0.5">–</span>{pred.portugal_score}
+                    <span className="text-xs" aria-hidden>🇵🇹</span>
                   </span>
                   <button
                     onClick={() => handleDelete(pred.id, pred.profiles?.display_name || 'este usuario')}

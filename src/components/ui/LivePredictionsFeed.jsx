@@ -131,10 +131,12 @@ function PredictionListItem({ prediction, isNew, verdict, onDelete }) {
       </div>
       <div className="flex items-center gap-1.5">
         {verdict && <VerdictBadge verdict={verdict} />}
-        <span className="font-mono text-base font-bold text-white tabular-nums whitespace-nowrap">
-          {prediction.colombia_score}
-          <span className="text-slate-500 mx-1">–</span>
-          {prediction.portugal_score}
+        <span className="font-mono text-base font-bold text-white tabular-nums whitespace-nowrap flex items-center gap-0.5">
+          <span className="text-sm" aria-hidden>🇨🇴</span>
+          <span>{prediction.colombia_score}</span>
+          <span className="text-slate-500 mx-0.5">–</span>
+          <span>{prediction.portugal_score}</span>
+          <span className="text-sm" aria-hidden>🇵🇹</span>
         </span>
         {onDelete && (
           <button

@@ -157,7 +157,11 @@ function WinnerChip({ winner, delay, tone }) {
       </div>
       <div className="flex flex-col leading-none">
         <span className="text-sm font-semibold">{name}</span>
-        <span className="text-[10px] opacity-80 font-mono mt-0.5">{scoreText}</span>
+        <span className="text-[10px] opacity-80 font-mono mt-0.5 flex items-center gap-0.5">
+          <span aria-hidden>🇨🇴</span>{winner.colombia_score}
+          <span className="opacity-50">–</span>
+          {winner.portugal_score}<span aria-hidden>🇵🇹</span>
+        </span>
       </div>
     </motion.div>
   )
