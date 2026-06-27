@@ -1,0 +1,177 @@
+@import "tailwindcss";
+
+/* ===== Custom Theme Variables ===== */
+@theme {
+  --color-colombia-yellow: #FCD116;
+  --color-colombia-blue: #003893;
+  --color-colombia-red: #CE1126;
+  --color-portugal-green: #006600;
+  --color-portugal-red: #FF0000;
+  --color-portugal-gold: #FFCC00;
+  --color-dark-900: #0f172a;
+  --color-dark-800: #1e293b;
+  --color-dark-700: #334155;
+  --color-dark-600: #475569;
+  --color-dark-500: #64748b;
+  --color-dark-400: #94a3b8;
+  --color-dark-300: #cbd5e1;
+  --color-dark-200: #e2e8f0;
+  --color-dark-100: #f1f5f9;
+  --font-display: 'Oswald', sans-serif;
+  --font-body: 'Inter', sans-serif;
+}
+
+/* ===== Base Styles ===== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--color-dark-900);
+  color: white;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ===== Scrollbar ===== */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-dark-800);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-dark-600);
+  border-radius: 3px;
+}
+
+/* ===== Background Pattern ===== */
+.bg-pitch-pattern {
+  background-image: 
+    radial-gradient(circle at 20% 80%, rgba(252, 209, 22, 0.06) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(0, 102, 0, 0.06) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(56, 189, 248, 0.03) 0%, transparent 70%);
+}
+
+/* ===== Glass Effect ===== */
+.glass {
+  background: rgba(30, 41, 59, 0.6);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-light {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* ===== Gradient Text ===== */
+.text-gradient-gold {
+  background: linear-gradient(135deg, #FCD116, #f59e0b, #FCD116);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-match {
+  background: linear-gradient(135deg, #FCD116, #ffffff, #006600);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ===== Score Input Styles ===== */
+.score-input {
+  -moz-appearance: textfield;
+}
+.score-input::-webkit-outer-spin-button,
+.score-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* ===== Pulse Ring Animation ===== */
+@keyframes pulse-ring {
+  0% { transform: scale(0.95); opacity: 1; }
+  50% { transform: scale(1.05); opacity: 0.7; }
+  100% { transform: scale(0.95); opacity: 1; }
+}
+
+.animate-pulse-ring {
+  animation: pulse-ring 2s ease-in-out infinite;
+}
+
+/* ===== Shimmer Effect ===== */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0) 0%,
+    rgba(255,255,255,0.05) 50%,
+    rgba(255,255,255,0) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+/* ===== Toast Styles ===== */
+.toast-custom {
+  background: var(--color-dark-800) !important;
+  color: white !important;
+  border: 1px solid rgba(255,255,255,0.1) !important;
+}
+
+/* ===== Number Stepper ===== */
+.number-stepper {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+.number-stepper button {
+  width: 48px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  font-weight: 700;
+  transition: all 0.15s ease;
+  user-select: none;
+  cursor: pointer;
+  border: none;
+  outline: none;
+}
+
+.number-stepper button:active {
+  transform: scale(0.92);
+}
+
+.number-stepper input {
+  width: 72px;
+  height: 56px;
+  text-align: center;
+  font-size: 1.75rem;
+  font-weight: 800;
+  font-family: var(--font-display);
+  border: none;
+  outline: none;
+  background: transparent;
+}

@@ -1,0 +1,5 @@
+export { default as Landing } from './Landing'
+export { default as Login } from './Login'
+export { default as Prediction } from './Prediction'
+export { default as MyPrediction } from './MyPrediction'
+export { default as Admin } from './Admin'
