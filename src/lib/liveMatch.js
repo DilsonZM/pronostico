@@ -32,7 +32,12 @@ export async function fetchLiveMatch(forceRefresh = false) {
   }
 
   try {
-    const response = await fetch('/api/live-match', {
+    // Dev-only: support ?demo=finished in URL to preview the winners banner
+    let url = '/api/live-match'
+    if (typeof window !== 'undefined' && window.location?.search?.includes('demo=finished')) {
+      url = '/api/live-match?demo=finished'
+    }
+    const response = await fetch(url, {
       method: 'GET',
       headers: { 'Accept': 'application/json' },
     })

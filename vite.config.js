@@ -83,8 +83,33 @@ function liveMatchMiddleware(env) {
   }
 
   return async function middleware(req, res, next) {
-    if (req.url !== '/api/live-match') return next()
+    if (!req.url.startsWith('/api/live-match')) return next()
     if (req.method !== 'GET') return next()
+
+    // Dev-only: ?demo=finished returns a finished match for testing the winners banner
+    if (req.url.includes('demo=finished')) {
+      res.setHeader('Content-Type', 'application/json')
+      res.setHeader('Cache-Control', 'no-store')
+      res.statusCode = 200
+      res.end(JSON.stringify({
+        found: true,
+        match: {
+          id: 537407,
+          utcDate: '2026-06-27T23:30:00Z',
+          status: 'FINISHED',
+          homeTeam: { id: 818, name: 'Colombia', shortName: 'Colombia', crest: 'https://crests.football-data.org/818.svg' },
+          awayTeam: { id: 765, name: 'Portugal', shortName: 'Portugal', crest: 'https://crests.football-data.org/765.svg' },
+          score: {
+            fullTime: { home: 2, away: 1 },
+            halfTime: { home: 1, away: 1 },
+            penalties: { home: null, away: null },
+          },
+          competition: 'FIFA World Cup',
+          matchday: 3,
+        },
+      }))
+      return
+    }
 
     try {
       // Try competition-scoped first, then fall back to all matches
