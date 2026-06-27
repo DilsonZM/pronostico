@@ -134,7 +134,7 @@ function liveMatchMiddleware(env) {
  */
 function analisisMiddleware(env) {
   const DEEPSEEK_URL = 'https://api.deepseek.com/v1/chat/completions'
-  const DEEPSEEK_MODEL = env.DEEPSEEK_MODEL || 'deepseek-chat'
+  const DEEPSEEK_MODEL = env.DEEPSEEK_MODEL || 'deepseek-v4-flash'
 
   const SYSTEM_PROMPT = `Eres "Predicto", un asistente IA de pronósticos deportivos para una familia. Tu trabajo: ayudar a pensar mejor el pronóstico, en MENOS palabras posibles.
 
