@@ -6,12 +6,10 @@ import Input from './Input'
 import { useAuth } from '../../context/AuthContext'
 
 /**
- * NameEntryForm
- *
- * The single place where users enter their name. Calm, focused, one job.
- * Returns the user to the previous screen on success.
+ * NameEntryForm — pro style
+ * Big input with team-colored focus ring, prominent CTA, clear hierarchy.
  */
-export default function NameEntryForm({ onSuccess, onBack, compact = false }) {
+export default function NameEntryForm({ onSuccess, onBack }) {
   const { signInWithName } = useAuth()
   const [name, setName] = useState('')
   const [error, setError] = useState('')
@@ -44,22 +42,26 @@ export default function NameEntryForm({ onSuccess, onBack, compact = false }) {
   }
 
   return (
-    <form
+    <motion.form
       onSubmit={handleSubmit}
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, ease: 'easeOut' }}
       className="w-full"
     >
-      {!compact && (
-        <div className="mb-5 text-center">
-          <h2 className="font-display text-xl sm:text-2xl font-bold text-white tracking-wide">
-            ¿Cómo te llamas?
-          </h2>
-          <p className="text-sm text-slate-400 mt-1">
-            Solo necesitamos tu nombre para registrar tu pronóstico
-          </p>
-        </div>
-      )}
+      {/* Header */}
+      <div className="text-center mb-6">
+        <h2 className="font-display text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-tight">
+          ¿Cómo te llamas?
+        </h2>
+        <p className="text-sm text-slate-400 mt-2 leading-relaxed">
+          Solo necesitamos tu nombre<br className="sm:hidden" />
+          {' '}para registrar tu pronóstico
+        </p>
+      </div>
 
-      <div className={compact ? '' : 'space-y-4'}>
+      {/* Form body */}
+      <div className="space-y-5">
         <Input
           label="Tu nombre"
           placeholder="Ej: Juan Pérez"
@@ -86,17 +88,20 @@ export default function NameEntryForm({ onSuccess, onBack, compact = false }) {
           {loading ? 'Entrando...' : 'Entrar y pronosticar'}
         </Button>
 
-        {onBack && !compact && (
+        {onBack && (
           <button
             type="button"
             onClick={onBack}
-            className="w-full text-center text-sm text-slate-400 hover:text-white transition-colors py-2"
             disabled={loading}
+            className="group w-full inline-flex items-center justify-center gap-1.5 text-sm text-slate-400 hover:text-white transition-colors py-2 disabled:opacity-40"
           >
-            ← Volver
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-hover:-translate-x-0.5">
+              <path d="M19 12H5M12 19l-7-7 7-7" />
+            </svg>
+            Volver
           </button>
         )}
       </div>
-    </form>
+    </motion.form>
   )
 }

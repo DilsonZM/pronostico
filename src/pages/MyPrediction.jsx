@@ -15,8 +15,7 @@ import { useAuth } from '../context/AuthContext'
 import { MATCH_DEADLINE } from '../lib/supabase'
 
 /**
- * MyPrediction — minimal
- * Hero matchup · status strip · my score card · comparison (if match live) · live feed
+ * MyPrediction — narrow column, no "Ver detalles"
  */
 export default function MyPrediction({ onEdit, onBack }) {
   const { profile } = useAuth()
@@ -51,14 +50,10 @@ export default function MyPrediction({ onEdit, onBack }) {
         background: 'radial-gradient(ellipse at top, #1e293b 0%, #0f172a 50%, #020617 100%)',
       }}
     >
-      <div className="w-full max-w-md mx-auto flex flex-col gap-5">
-        {onBack && (
-          <BackButton onClick={onBack} />
-        )}
+      <div className="w-full max-w-[340px] mx-auto flex flex-col gap-5">
+        {onBack && <BackButton onClick={onBack} />}
 
-        <div className="text-center">
-          <MatchHero kickoffISO={MATCH_DEADLINE.toISOString()} />
-        </div>
+        <MatchHero kickoffISO={MATCH_DEADLINE.toISOString()} />
 
         <LiveMatchStrip
           match={liveMatch}

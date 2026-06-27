@@ -15,10 +15,10 @@ import { useAuth } from '../context/AuthContext'
 import { MATCH_DEADLINE } from '../lib/supabase'
 
 /**
- * Prediction — minimal, one section at a time
+ * Prediction — narrow column, no "Ver detalles"
  * Stack: Greeting → Hero → Status strip → My prediction (or form) → Live feed
  */
-export default function Prediction({ onViewPrediction }) {
+export default function Prediction() {
   const { profile } = useAuth()
   const { prediction, loading: predLoading } = usePrediction()
   const {
@@ -39,22 +39,18 @@ export default function Prediction({ onViewPrediction }) {
         background: 'radial-gradient(ellipse at top, #1e293b 0%, #0f172a 50%, #020617 100%)',
       }}
     >
-      <div className="w-full max-w-md mx-auto flex flex-col gap-5">
-        {/* Greeting + hero en una sola línea visual */}
+      <div className="w-full max-w-[340px] mx-auto flex flex-col gap-5">
         <motion.div
           initial={{ opacity: 0, y: -6 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center"
         >
-          <p className="text-[10px] font-semibold tracking-[0.22em] uppercase text-slate-500">
+          <p className="text-[10px] font-semibold tracking-[0.22em] uppercase text-slate-500 mb-3">
             Hola, {profile?.display_name}
           </p>
-          <div className="mt-2">
-            <MatchHero kickoffISO={MATCH_DEADLINE.toISOString()} />
-          </div>
+          <MatchHero kickoffISO={MATCH_DEADLINE.toISOString()} />
         </motion.div>
 
-        {/* Status + countdown en una sola fila */}
         <LiveMatchStrip
           match={liveMatch}
           loading={liveLoading}
@@ -66,24 +62,9 @@ export default function Prediction({ onViewPrediction }) {
           onRefresh={refreshLive}
         />
 
-        {/* Mi pronóstico o form */}
         {prediction ? (
-          <SectionCard
-            title="Tu pronóstico"
-            delay={0.05}
-          >
+          <SectionCard title="Tu pronóstico" delay={0.05}>
             <MyPredictionCard prediction={prediction} />
-            <div className="mt-5 pt-5 border-t border-white/5">
-              <Button
-                size="md"
-                fullWidth
-                variant="secondary"
-                onClick={onViewPrediction}
-                icon="👁️"
-              >
-                Ver detalles
-              </Button>
-            </div>
           </SectionCard>
         ) : (
           <SectionCard title="¿Cómo terminará?" delay={0.05}>
@@ -95,7 +76,6 @@ export default function Prediction({ onViewPrediction }) {
           </SectionCard>
         )}
 
-        {/* Feed en vivo */}
         <LivePredictionsFeed
           predictions={predictions.filter((p) => p.user_id !== profile?.id)}
           loading={feedLoading}

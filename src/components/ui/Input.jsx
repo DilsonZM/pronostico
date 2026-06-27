@@ -11,7 +11,7 @@ const Input = forwardRef(function Input({
   return (
     <div className="w-full">
       {label && (
-        <label className="block text-sm font-medium text-white mb-2 font-semibold">
+        <label className="block text-[10px] font-bold tracking-[0.18em] uppercase text-slate-400 mb-2.5">
           {label}
         </label>
       )}
@@ -29,16 +29,15 @@ const Input = forwardRef(function Input({
         <input
           ref={ref}
           style={{
-            background: 'rgba(15, 23, 42, 0.9) !important',
-            color: '#ffffff !important',
-            border: error ? '2px solid #ef4444' : '1px solid rgba(255, 255, 255, 0.15)',
-            fontSize: '1.125rem',
-            fontWeight: '500',
+            background: 'rgba(2, 6, 23, 0.7)',
+            color: '#ffffff',
+            border: error ? '2px solid #ef4444' : '1px solid rgba(255, 255, 255, 0.1)',
           }}
           className={`
-            w-full px-4 py-4 rounded-xl
+            w-full px-4 py-3.5 rounded-xl
+            text-base font-medium
             placeholder:text-slate-500
-            focus:outline-none focus:ring-2 focus:ring-colombia-yellow
+            focus:outline-none focus:ring-2 focus:ring-yellow-400/50 focus:border-yellow-400/40
             transition-all duration-200
             ${icon ? 'pl-14' : ''}
             ${className}
@@ -48,11 +47,14 @@ const Input = forwardRef(function Input({
       </div>
       {error && (
         <motion.p
-          initial={{ opacity: 0, y: -5 }}
+          initial={{ opacity: 0, y: -4 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mt-2 text-sm text-red-400 flex items-center gap-1"
+          className="mt-2.5 text-sm text-red-400 flex items-center gap-1.5"
         >
-          <span>⚠</span> {error}
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+          </svg>
+          {error}
         </motion.p>
       )}
     </div>

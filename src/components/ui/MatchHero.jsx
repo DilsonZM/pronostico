@@ -2,9 +2,8 @@ import { motion } from 'framer-motion'
 import { formatMatchDate, formatMatchTime } from '../../lib/date-utils'
 
 /**
- * MatchHero — premium compact
- * Single row: flag · team name · vs · flag · team name.
- * Date/time on a second line. No redundant badges.
+ * MatchHero — premium bold
+ * Big flag with fire emoji for Colombia, giant VS, colored team names.
  */
 export default function MatchHero({ kickoffISO, competition = 'Mundial FIFA 2026' }) {
   const dateText = kickoffISO ? formatMatchDate(kickoffISO) : ''
@@ -14,57 +13,96 @@ export default function MatchHero({ kickoffISO, competition = 'Mundial FIFA 2026
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.45, ease: 'easeOut' }}
+      transition={{ duration: 0.5, ease: 'easeOut' }}
       className="text-center"
     >
-      <p className="text-[10px] font-semibold tracking-[0.22em] uppercase text-slate-500 mb-3">
+      <p className="text-[10px] font-semibold tracking-[0.22em] uppercase text-slate-500 mb-4">
         {competition}
       </p>
 
-      <div className="flex items-center justify-center gap-3 sm:gap-5">
-        <TeamSide flag="🇨🇴" code="COL" align="right" />
+      {/* Big flag with fire */}
+      <motion.div
+        initial={{ scale: 0, rotate: -20 }}
+        animate={{ scale: 1, rotate: 0 }}
+        transition={{ type: 'spring', stiffness: 200, damping: 14, delay: 0.05 }}
+        className="inline-flex items-center justify-center gap-1.5 mb-4"
+      >
+        <span
+          className="text-6xl sm:text-7xl leading-none"
+          style={{ filter: 'drop-shadow(0 0 16px rgba(252, 209, 22, 0.4))' }}
+          aria-hidden
+        >
+          🇨🇴
+        </span>
         <motion.span
-          initial={{ opacity: 0, scale: 0.5 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.15, type: 'spring', stiffness: 220, damping: 16 }}
-          className="font-display text-xs font-bold tracking-[0.3em] text-slate-500"
+          initial={{ scale: 0, rotate: 20 }}
+          animate={{
+            scale: [0, 1.3, 1],
+            rotate: [20, -10, 0],
+          }}
+          transition={{ duration: 0.6, delay: 0.3, times: [0, 0.6, 1] }}
+          className="text-3xl sm:text-4xl leading-none -ml-2"
+          aria-hidden
+        >
+          🔥
+        </motion.span>
+      </motion.div>
+
+      {/* Team names with colors + giant VS */}
+      <div className="flex items-center justify-center gap-2 sm:gap-3 mb-3">
+        <motion.h1
+          initial={{ x: -20, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          transition={{ delay: 0.15 }}
+          className="font-display text-2xl sm:text-3xl font-extrabold tracking-tight"
+          style={{
+            background: 'linear-gradient(135deg, #FCD116 0%, #ffffff 50%, #003893 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+          }}
+        >
+          Colombia
+        </motion.h1>
+
+        <motion.span
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ type: 'spring', stiffness: 250, damping: 14, delay: 0.25 }}
+          className="font-display text-3xl sm:text-4xl font-black tracking-tighter text-slate-400"
         >
           VS
         </motion.span>
-        <TeamSide flag="🇵🇹" code="POR" align="left" />
+
+        <motion.h1
+          initial={{ x: 20, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          transition={{ delay: 0.15 }}
+          className="font-display text-2xl sm:text-3xl font-extrabold tracking-tight"
+          style={{
+            background: 'linear-gradient(135deg, #006600 0%, #ffffff 50%, #FF0000 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+          }}
+        >
+          Portugal
+        </motion.h1>
       </div>
 
+      {/* Date and time */}
       {(dateText || timeText) && (
-        <motion.p
+        <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.25 }}
-          className="text-xs text-slate-400 mt-3"
+          transition={{ delay: 0.4 }}
+          className="text-xs text-slate-400"
         >
           {dateText && <span className="capitalize">{dateText}</span>}
           {dateText && timeText && <span className="mx-1.5 text-slate-600">·</span>}
           {timeText && <span>{timeText} <span className="text-slate-500">COL</span></span>}
-        </motion.p>
+        </motion.div>
       )}
     </motion.div>
-  )
-}
-
-function TeamSide({ flag, code, align }) {
-  return (
-    <div className={`flex items-center gap-2 ${align === 'right' ? 'flex-row-reverse' : ''}`}>
-      <motion.span
-        initial={{ scale: 0, rotate: align === 'right' ? -45 : 45 }}
-        animate={{ scale: 1, rotate: 0 }}
-        transition={{ type: 'spring', stiffness: 240, damping: 16, delay: 0.1 }}
-        className="text-3xl sm:text-4xl leading-none"
-        aria-hidden
-      >
-        {flag}
-      </motion.span>
-      <span className="font-display text-xs sm:text-sm font-bold text-white tracking-widest">
-        {code}
-      </span>
-    </div>
   )
 }
