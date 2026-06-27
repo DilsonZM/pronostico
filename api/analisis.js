@@ -21,7 +21,7 @@ const DEEPSEEK_MODEL = process.env.DEEPSEEK_MODEL || 'deepseek-v4-flash'
 // Built as a plain string with concat to avoid JS parsing surprises with
 // certain Unicode characters in template literals.
 const SYSTEM_PROMPT = [
-  'Eres "Predicto", un asistente IA de pronósticos deportivos para una familia. Tu trabajo: ayudar a pensar mejor el pronóstico, en MENOS palabras posibles.',
+  'Eres "DilBot", un asistente IA de pronósticos deportivos para una familia. Tu trabajo: ayudar a pensar mejor el pronóstico, en MENOS palabras posibles.',
   '',
   'ALCANCE:',
   '- SOLO fútbol, pronósticos, análisis de partidos, estadísticas, forma reciente, lesiones, táctica, probabilidades.',
@@ -149,9 +149,12 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         model: DEEPSEEK_MODEL,
         messages: apiMessages,
-        max_tokens: 200, // short replies only
+        max_tokens: 300, // short replies only
         temperature: 0.5,
         stream: false,
+        // Disable thinking mode so all tokens go to the final answer
+        // (otherwise reasoning_content uses them and content can be empty)
+        thinking: { type: 'disabled' },
       }),
     })
 

@@ -11,7 +11,7 @@ export default function ChatBot({ context = {} }) {
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      content: '¡Hola! Soy **Predicto** 🤖⚽. Pregúntame sobre el partido o los pronósticos de la familia. Solo respondo temas de pronósticos deportivos 🏟️.',
+      content: '¡Hola! Soy **DilBot** 🤖⚽. Pregúntame sobre el partido o los pronósticos de la familia. Solo respondo temas de pronósticos deportivos 🏟️.',
     },
   ])
   const [input, setInput] = useState('')
@@ -57,8 +57,9 @@ export default function ChatBot({ context = {} }) {
         setError(data?.message || data?.error || 'No pude contactar al bot')
         return
       }
-      const reply = data.reply || 'Sin respuesta del bot.'
-      setMessages((prev) => [...prev, { role: 'assistant', content: reply }])
+      const reply = (data.reply || '').trim()
+      const final = reply && reply.length >= 5 ? reply : 'Sin respuesta de DilBot. Intenta de nuevo.'
+      setMessages((prev) => [...prev, { role: 'assistant', content: final }])
     } catch (err) {
       setError(err?.message || 'Error de red')
     } finally {
@@ -99,8 +100,8 @@ export default function ChatBot({ context = {} }) {
           flex items-center justify-center text-lg
           border border-white/15
           bg-slate-900/85 backdrop-blur-md text-white"
-        aria-label="Abrir chat con el bot"
-        title="Predicto · Chatbot de pronósticos"
+        aria-label="Abrir chat con DilBot"
+        title="DilBot · Chatbot de pronósticos"
       >
         <AnimatePresence mode="wait" initial={false}>
           {open ? (
@@ -155,7 +156,7 @@ export default function ChatBot({ context = {} }) {
                     🤖
                   </div>
                   <div className="min-w-0">
-                    <h2 className="text-sm font-semibold text-white leading-tight">Predicto</h2>
+                    <h2 className="text-sm font-semibold text-white leading-tight">DilBot</h2>
                     <p className="text-[10px] text-slate-400 flex items-center gap-1">
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
                       Solo pronósticos deportivos
