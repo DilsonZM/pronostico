@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useRef, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import {
   MatchHero,
@@ -7,11 +7,14 @@ import {
   PredictionForm,
   LivePredictionsFeed,
   SectionCard,
+  BotSuggestion,
+  Button,
 } from '../components/ui'
 import { PageContainer } from '../components/layout'
 import { usePrediction } from '../context/PredictionContext'
 import { useLiveData } from '../context/LiveDataContext'
 import { useAuth } from '../context/AuthContext'
+import { isPast } from '../lib/date-utils'
 import { MATCH_DEADLINE } from '../lib/supabase'
 
 export default function Prediction({ onViewPrediction }) {
@@ -30,17 +33,13 @@ export default function Prediction({ onViewPrediction }) {
     newIds,
   } = useLiveData()
 
-  const consensus = useMemo(() => {
-    if (!predictions.length) return null
-    const tally = {}
-    for (const p of predictions) {
-      const k = `${p.colombia_score}-${p.portugal_score}`
-      tally[k] = (tally[k] || 0) + 1
-    }
-    const [top, count] = Object.entries(tally).sort((a, b) => b[1] - a[1])[0]
-    const [col, por] = top.split('-').map(Number)
-    return { col, por, total: predictions.length, count }
-  }, [predictions])
+  const canEdit = !isPast(MATCH_DEADLINE) && !isFinished
+  const formRef = useRef(null)
+
+  function handleEditClick() {
+    // Navigate to MyPrediction and scroll to the form
+    if (onViewPrediction) onViewPrediction()
+  }
 
   return (
     <PageContainer>
@@ -70,26 +69,47 @@ export default function Prediction({ onViewPrediction }) {
       />
 
       {prediction ? (
-        <SectionCard title="Tu pronóstico" delay={0.05}>
-          <MyPredictionCard prediction={prediction} />
-          {onViewPrediction && !isFinished && (
-            <div className="mt-4 pt-4 border-t border-white/5">
-              <button
-                onClick={onViewPrediction}
-                className="w-full text-center text-xs text-slate-400 hover:text-white transition-colors py-1.5"
-              >
-                Ver detalles
-              </button>
-            </div>
-          )}
-        </SectionCard>
+        <>
+          <SectionCard title="Tu pronóstico" delay={0.05}>
+            <MyPredictionCard prediction={prediction} />
+            {canEdit && (
+              <div className="mt-4 pt-4 border-t border-white/5 flex items-center justify-center">
+                <Button
+                  size="md"
+                  variant="secondary"
+                  onClick={handleEditClick}
+                  icon="✏️"
+                >
+                  Editar marcador
+                </Button>
+              </div>
+            )}
+            {!canEdit && (
+              <p className="text-[10px] text-center text-slate-500 mt-3">
+                🔒 No se puede editar después del partido
+              </p>
+            )}
+          </SectionCard>
+
+          {/* Short bot suggestion just below the score card */}
+          <BotSuggestion
+            prediction={prediction}
+            familyPredictions={predictions}
+            match={liveMatch}
+          />
+        </>
       ) : (
-        <SectionCard title="¿Cómo terminará?" delay={0.05}>
-          {predLoading ? (
-            <p className="text-center text-slate-500 text-sm py-6">Cargando…</p>
-          ) : (
-            <PredictionForm />
-          )}
+        <SectionCard
+          title="¿Cómo terminará?"
+          delay={0.05}
+        >
+          <div ref={formRef}>
+            {predLoading ? (
+              <p className="text-center text-slate-500 text-sm py-6">Cargando…</p>
+            ) : (
+              <PredictionForm />
+            )}
+          </div>
         </SectionCard>
       )}
 
@@ -98,7 +118,7 @@ export default function Prediction({ onViewPrediction }) {
         loading={feedLoading}
         newIds={newIds}
         liveMatch={liveMatch}
-        consensus={consensus}
+        consensus={null}
       />
     </PageContainer>
   )

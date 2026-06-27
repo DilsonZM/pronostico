@@ -1,4 +1,3 @@
-import { useMemo } from 'react'
 import { motion } from 'framer-motion'
 import {
   Button,
@@ -73,29 +72,30 @@ export default function MyPrediction({ onEdit, onBack }) {
         onRefresh={refreshLive}
       />
 
+      {/* Score card with inline edit button (only if can edit) */}
       <SectionCard title="Tu pronóstico" delay={0.05}>
         <MyPredictionCard prediction={prediction} />
-        {onEdit && canEdit && (
-          <div className="mt-4 pt-4 border-t border-white/5">
-            <Button
-              size="md"
-              fullWidth
-              variant="secondary"
-              onClick={onEdit}
-              icon="✏️"
-            >
-              Editar mi pronóstico
-            </Button>
+        {onEdit && (
+          <div className="mt-4 pt-4 border-t border-white/5 flex items-center justify-center">
+            {canEdit ? (
+              <Button
+                size="md"
+                variant="secondary"
+                onClick={onEdit}
+                icon="✏️"
+              >
+                Editar marcador
+              </Button>
+            ) : (
+              <p className="text-[10px] text-center text-slate-500">
+                🔒 No se puede editar después del partido
+              </p>
+            )}
           </div>
-        )}
-        {onEdit && !canEdit && (
-          <p className="text-[10px] text-center text-slate-500 mt-3">
-            🔒 No se puede editar después del partido
-          </p>
         )}
       </SectionCard>
 
-      {/* Bot suggestion — non-intrusive advice */}
+      {/* Bot suggestion — short, non-intrusive, just below the score */}
       <BotSuggestion
         prediction={prediction}
         familyPredictions={predictions}
