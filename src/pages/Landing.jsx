@@ -8,23 +8,24 @@ export default function Landing() {
   const [showName, setShowName] = useState(false)
 
   return (
-    <PageContainer py="py-12 sm:py-16" gap="gap-8">
-      <div className="text-center">
-        <p className="text-[10px] font-semibold tracking-[0.22em] uppercase text-slate-500 mb-2">
-          Mundial FIFA 2026
-        </p>
-        <p className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
-          Colombia <span className="text-slate-500 font-light">vs</span> Portugal
-        </p>
-        <p className="text-[11px] text-slate-500 mt-2">
-          Sábado, 27 de junio · 6:30 PM COL
-        </p>
-      </div>
+    <PageContainer py="py-10 sm:py-14" gap="gap-7">
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="rounded-2xl bg-slate-900/55 border border-white/8 px-3 py-5"
+      >
+        <MatchHero kickoffISO={MATCH_DEADLINE.toISOString()} />
+      </motion.div>
 
       <CountdownDisplay deadline={MATCH_DEADLINE.toISOString()} />
 
       {showName ? (
-        <div className="bg-slate-900/85 border border-white/10 rounded-2xl p-6">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className="rounded-2xl bg-slate-900/85 border border-white/10 p-6"
+        >
           <div className="text-center mb-5">
             <h2 className="text-lg font-semibold text-white">¿Cómo te llamas?</h2>
             <p className="text-xs text-slate-400 mt-1">
@@ -32,9 +33,14 @@ export default function Landing() {
             </p>
           </div>
           <NameEntryForm onSuccess={() => {}} onBack={() => setShowName(false)} />
-        </div>
+        </motion.div>
       ) : (
-        <div className="space-y-2">
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.7 }}
+          className="space-y-2"
+        >
           <Button
             size="lg"
             fullWidth
@@ -46,7 +52,7 @@ export default function Landing() {
           <p className="text-center text-[11px] text-slate-500">
             Solo necesitas tu nombre · 1 minuto
           </p>
-        </div>
+        </motion.div>
       )}
     </PageContainer>
   )
