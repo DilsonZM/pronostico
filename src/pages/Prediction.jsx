@@ -8,6 +8,7 @@ import {
   LivePredictionsFeed,
   SectionCard,
   BotSuggestion,
+  Winners,
 } from '../components/ui'
 import { PageContainer } from '../components/layout'
 import { usePrediction } from '../context/PredictionContext'
@@ -119,6 +120,12 @@ export default function Prediction({ onViewPrediction }) {
           </div>
         </SectionCard>
       )}
+
+      {/* Winners banner — only appears when match is FINISHED */}
+      <Winners
+        predictions={predictions}
+        match={liveMatch}
+      />
 
       <LivePredictionsFeed
         predictions={predictions.filter((p) => p.user_id !== profile?.id)}
