@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#FCD116"/>
+      <stop offset="50%" stop-color="#0066CC"/>
+      <stop offset="100%" stop-color="#CE1126"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" fill="url(#bg)"/>
+  <g transform="translate(256 256)">
+    <circle r="110" fill="#ffffff" stroke="#0f172a" stroke-width="2.5"/>
+    <polygon points="0,-42 36,-14 24,33 -24,33 -36,-14" fill="#0f172a" stroke="#0f172a" stroke-width="1.5"/>
+    <g fill="#0f172a" stroke="#0f172a" stroke-width="1.2">
+      <polygon points="0,-88 30,-77 19,-58 -19,-58 -30,-77"/>
+      <polygon points="86,-28 76,0 58,10 51,-22 70,-42"/>
+      <polygon points="52,73 27,73 15,56 39,42 60,56"/>
+      <polygon points="-52,73 -27,73 -15,56 -39,42 -60,56"/>
+      <polygon points="-86,-28 -76,0 -58,10 -51,-22 -70,-42"/>
+    </g>
+    <g stroke="#0f172a" stroke-width="2.5" fill="none">
+      <line x1="0" y1="-42" x2="30" y2="-77"/>
+      <line x1="30" y1="-77" x2="70" y2="-42"/>
+      <line x1="70" y1="-42" x2="86" y2="-28"/>
+      <line x1="70" y1="-42" x2="52" y2="73"/>
+      <line x1="52" y1="73" x2="-52" y2="73"/>
+      <line x1="-52" y1="73" x2="-86" y2="-28"/>
+      <line x1="-86" y1="-28" x2="-70" y2="-42"/>
+      <line x1="-70" y1="-42" x2="-30" y2="-77"/>
+      <line x1="-30" y1="-77" x2="0" y2="-42"/>
+    </g>
+  </g>
+</svg>
