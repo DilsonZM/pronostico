@@ -5,13 +5,19 @@ import SectionCard from './SectionCard'
 /**
  * LivePredictionsFeed
  *
- * Realtime list of predictions from other users.
- * - Animated entry when a new prediction arrives (highlight ring)
- * - Sorted by most recent first
- * - Empty state when nobody has voted yet
- * - Loading state
+ * Each item shows a small badge indicating whether the prediction
+ * is "Winning" / "Losing" / "Draw" compared to the live score
+ * (if the match is in play or finished). If no live score is
+ * available, the consensus is computed from the family of
+ * predictions and items are labelled "Most picked" / "Outlier".
  */
-export default function LivePredictionsFeed({ predictions = [], loading = false, newIds = new Set() }) {
+export default function LivePredictionsFeed({
+  predictions = [],
+  loading = false,
+  newIds = new Set(),
+  liveMatch = null,
+  consensus = null, // { col, por, total }
+}) {
   const count = predictions.length
 
   return (
@@ -31,13 +37,17 @@ export default function LivePredictionsFeed({ predictions = [], loading = false,
       ) : (
         <ul className="space-y-2.5">
           <AnimatePresence initial={false}>
-            {predictions.map((p) => (
-              <PredictionListItem
-                key={p.id}
-                prediction={p}
-                isNew={newIds.has(p.id)}
-              />
-            ))}
+            {predictions.map((p) => {
+              const verdict = computeVerdict(p, liveMatch, consensus)
+              return (
+                <PredictionListItem
+                  key={p.id}
+                  prediction={p}
+                  isNew={newIds.has(p.id)}
+                  verdict={verdict}
+                />
+              )
+            })}
           </AnimatePresence>
         </ul>
       )}
@@ -45,7 +55,46 @@ export default function LivePredictionsFeed({ predictions = [], loading = false,
   )
 }
 
-function PredictionListItem({ prediction, isNew }) {
+/**
+ * Decide what badge to show next to a prediction.
+ * 1. If the match has a live / final score, compare to that.
+ * 2. Otherwise, compare to the family consensus (most popular score).
+ */
+function computeVerdict(prediction, liveMatch, consensus) {
+  if (liveMatch && (liveMatch.status === 'IN_PLAY' || liveMatch.status === 'PAUSED' || liveMatch.status === 'FINISHED')) {
+    const lc = liveMatch.score?.fullTime?.home ?? 0
+    const lp = liveMatch.score?.fullTime?.away ?? 0
+    const c = prediction.colombia_score
+    const p = prediction.portugal_score
+    if (c === lc && p === lp) {
+      return { tone: 'exact', label: 'En vivo: exacto', icon: '🎯' }
+    }
+    const predResult = c > p ? 'colombia' : c < p ? 'portugal' : 'draw'
+    const liveResult = lc > lp ? 'colombia' : lc < lp ? 'portugal' : 'draw'
+    if (predResult === liveResult) {
+      return { tone: 'result', label: 'Va ganando', icon: '✅' }
+    }
+    return { tone: 'miss', label: 'Va perdiendo', icon: '❌' }
+  }
+
+  // No live score → compare to consensus
+  if (consensus && consensus.total > 0) {
+    const c = prediction.colombia_score
+    const p = prediction.portugal_score
+    if (c === consensus.col && p === consensus.por) {
+      return { tone: 'consensus', label: 'El más votado', icon: '⭐' }
+    }
+    // Same result as consensus
+    if ((c > p) === (consensus.col > consensus.por) && (c !== p || consensus.col === consensus.por)) {
+      return { tone: 'side', label: 'Va con la mayoría', icon: '👍' }
+    }
+    return { tone: 'outlier', label: 'Apuesta distinta', icon: '🎲' }
+  }
+
+  return null
+}
+
+function PredictionListItem({ prediction, isNew, verdict }) {
   const name = prediction.profile?.display_name || 'Anónimo'
   const initials = name
     .split(' ')
@@ -63,16 +112,13 @@ function PredictionListItem({ prediction, isNew }) {
       exit={{ opacity: 0, x: -10, scale: 0.96 }}
       transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
       className={`
-        relative flex items-center justify-between
+        relative flex items-center justify-between gap-3
         rounded-2xl border bg-slate-900/55 px-3 sm:px-4 py-2.5
         transition-shadow duration-500
-        ${isNew
-          ? 'border-yellow-300/40 shadow-[0_0_0_3px_rgba(252,209,22,0.12)]'
-          : 'border-white/5'
-        }
+        ${isNew ? 'border-yellow-300/40 shadow-[0_0_0_3px_rgba(252,209,22,0.12)]' : 'border-white/5'}
       `}
     >
-      <div className="flex items-center gap-3 min-w-0">
+      <div className="flex items-center gap-3 min-w-0 flex-1">
         <div
           className="w-9 h-9 shrink-0 rounded-full flex items-center justify-center font-display text-[11px] font-bold text-slate-900"
           style={{ background: 'linear-gradient(135deg, #FCD116 0%, #006600 100%)' }}
@@ -92,8 +138,34 @@ function PredictionListItem({ prediction, isNew }) {
           <span className="text-slate-500 mx-1 font-light">–</span>
           {prediction.portugal_score}
         </span>
+        {verdict && <VerdictBadge verdict={verdict} />}
       </div>
     </motion.li>
+  )
+}
+
+function VerdictBadge({ verdict }) {
+  const toneMap = {
+    exact: 'bg-emerald-500/15 border-emerald-400/30 text-emerald-300',
+    result: 'bg-emerald-500/10 border-emerald-400/20 text-emerald-300',
+    miss: 'bg-red-500/10 border-red-400/20 text-red-300',
+    consensus: 'bg-yellow-500/15 border-yellow-400/30 text-yellow-300',
+    side: 'bg-slate-700/50 border-white/10 text-slate-300',
+    outlier: 'bg-slate-800/60 border-white/10 text-slate-400',
+  }
+  return (
+    <span
+      className={`
+        hidden sm:inline-flex items-center gap-1
+        text-[9px] font-bold uppercase tracking-wider
+        px-2 py-0.5 rounded-full border whitespace-nowrap
+        ${toneMap[verdict.tone] || toneMap.side}
+      `}
+      title={verdict.label}
+    >
+      <span aria-hidden>{verdict.icon}</span>
+      <span>{verdict.label}</span>
+    </span>
   )
 }
 

@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { motion } from 'framer-motion'
 import {
   MatchHero,
@@ -6,6 +7,7 @@ import {
   PredictionForm,
   LivePredictionsFeed,
   SectionCard,
+  BotAnalisis,
 } from '../components/ui'
 import { PageContainer } from '../components/layout'
 import { usePrediction } from '../context/PredictionContext'
@@ -15,7 +17,7 @@ import { useAuth } from '../context/AuthContext'
 import { MATCH_DEADLINE } from '../lib/supabase'
 
 /**
- * Prediction — floating island layout
+ * Prediction — floating island + bot analysis
  */
 export default function Prediction() {
   const { profile } = useAuth()
@@ -31,6 +33,23 @@ export default function Prediction() {
   } = useLiveMatch()
   const { predictions, loading: feedLoading, newIds } = useRealtimePredictions()
 
+  // Build family + consensus for the bot
+  const familyPredictions = useMemo(
+    () => predictions,
+    [predictions]
+  )
+  const consensus = useMemo(() => {
+    if (!predictions.length) return null
+    const tally = {}
+    for (const p of predictions) {
+      const k = `${p.colombia_score}-${p.portugal_score}`
+      tally[k] = (tally[k] || 0) + 1
+    }
+    const [top, count] = Object.entries(tally).sort((a, b) => b[1] - a[1])[0]
+    const [col, por] = top.split('-').map(Number)
+    return { col, por, total: predictions.length, count }
+  }, [predictions])
+
   return (
     <PageContainer>
       <motion.div
@@ -43,7 +62,6 @@ export default function Prediction() {
         </p>
       </motion.div>
 
-      {/* Match hero island */}
       <div className="rounded-3xl bg-slate-900/55 border border-white/8 backdrop-blur-xl p-5 sm:p-6 shadow-[0_8px_30px_rgba(0,0,0,0.35)]">
         <MatchHero kickoffISO={MATCH_DEADLINE.toISOString()} />
       </div>
@@ -73,10 +91,34 @@ export default function Prediction() {
         </SectionCard>
       )}
 
+      {/* Bot analítico con IA */}
+      <SectionCard
+        eyebrow="Asistente"
+        title="¿Necesitas ayuda para decidir?"
+        delay={0.07}
+      >
+        <p className="text-xs text-slate-400 mb-3 leading-relaxed">
+          Pídele al bot un análisis del partido basado en los pronósticos
+          de la familia y el contexto del encuentro.
+        </p>
+        <BotAnalisis
+          familyPredictions={familyPredictions}
+          match={liveMatch}
+          userPrediction={
+            prediction
+              ? { colombia: prediction.colombia_score, portugal: prediction.portugal_score }
+              : null
+          }
+          triggerLabel="Pedir análisis al bot"
+        />
+      </SectionCard>
+
       <LivePredictionsFeed
         predictions={predictions.filter((p) => p.user_id !== profile?.id)}
         loading={feedLoading}
         newIds={newIds}
+        liveMatch={liveMatch}
+        consensus={consensus}
       />
     </PageContainer>
   )
