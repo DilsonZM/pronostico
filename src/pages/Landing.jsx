@@ -29,7 +29,7 @@ export default function Landing() {
         initial={{ scale: 0.7, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ type: 'spring', stiffness: 180, damping: 18 }}
-        className="flex items-center justify-center"
+        className="flex items-center justify-center self-center"
       >
         <div className="w-20 h-20 rounded-3xl bg-slate-900/70 border border-white/10 flex items-center justify-center text-5xl">
           ⚽
@@ -65,12 +65,12 @@ export default function Landing() {
 function PageShell({ children }) {
   return (
     <div
-      className="min-h-[100dvh] flex flex-col items-center px-4 sm:px-6 py-8 sm:py-12"
+      className="min-h-[100dvh] px-4 sm:px-6 py-8 sm:py-12"
       style={{
         background: 'radial-gradient(ellipse at top, #1e293b 0%, #0f172a 50%, #020617 100%)',
       }}
     >
-      <div className="w-full max-w-md flex flex-col items-stretch gap-6 sm:gap-7">
+      <div className="w-full max-w-md mx-auto flex flex-col gap-6 sm:gap-7">
         {children}
       </div>
     </div>

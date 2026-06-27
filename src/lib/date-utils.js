@@ -12,16 +12,31 @@ const TIMEZONE = 'America/Bogota'
 const LOCALE = 'es-CO'
 
 /**
- * Parse an ISO date string (UTC) and return a Date object.
+ * Parse a date input (ISO string, Date, number) and return a Date object.
  * Always treats the input as UTC.
+ * Defensive: handles Date, number, null, undefined, and non-string inputs.
  */
-export function parseUTC(isoString) {
-  if (!isoString) return null
-  // The Date constructor with ISO string ending in 'Z' is parsed as UTC.
-  // We append 'Z' defensively in case the input lacks a timezone marker.
-  const normalized = isoString.endsWith('Z') || isoString.includes('+') || isoString.includes('-', 10)
-    ? isoString
-    : `${isoString}Z`
+export function parseUTC(input) {
+  if (input === null || input === undefined || input === '') return null
+
+  // If already a Date, return it
+  if (input instanceof Date) {
+    return isNaN(input.getTime()) ? null : input
+  }
+
+  // Coerce to string safely
+  const str = typeof input === 'string' ? input : String(input)
+
+  // If it's a string, append Z if needed so it's parsed as UTC
+  const hasTimezone =
+    str.endsWith('Z') ||
+    /[+-]\d{2}:?\d{2}$/.test(str) ||
+    str.includes('T') === false // date-only strings like "2026-06-27" are fine as-is
+
+  const normalized = !str.includes('T') || hasTimezone || /\d{4}-\d{2}-\d{2}$/.test(str)
+    ? str
+    : `${str}Z`
+
   const d = new Date(normalized)
   return isNaN(d.getTime()) ? null : d
 }
