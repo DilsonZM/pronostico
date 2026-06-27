@@ -7,7 +7,6 @@ import {
   PredictionForm,
   LivePredictionsFeed,
   SectionCard,
-  BotAnalisis,
 } from '../components/ui'
 import { PageContainer } from '../components/layout'
 import { usePrediction } from '../context/PredictionContext'
@@ -17,7 +16,9 @@ import { useAuth } from '../context/AuthContext'
 import { MATCH_DEADLINE } from '../lib/supabase'
 
 /**
- * Prediction — floating island + bot analysis
+ * Prediction — floating island layout
+ * The AI chatbot is now globally available via the floating action button
+ * in the bottom-right of any authenticated screen.
  */
 export default function Prediction() {
   const { profile } = useAuth()
@@ -33,11 +34,6 @@ export default function Prediction() {
   } = useLiveMatch()
   const { predictions, loading: feedLoading, newIds } = useRealtimePredictions()
 
-  // Build family + consensus for the bot
-  const familyPredictions = useMemo(
-    () => predictions,
-    [predictions]
-  )
   const consensus = useMemo(() => {
     if (!predictions.length) return null
     const tally = {}
@@ -90,28 +86,6 @@ export default function Prediction() {
           )}
         </SectionCard>
       )}
-
-      {/* Bot analítico con IA */}
-      <SectionCard
-        eyebrow="Asistente"
-        title="¿Necesitas ayuda para decidir?"
-        delay={0.07}
-      >
-        <p className="text-xs text-slate-400 mb-3 leading-relaxed">
-          Pídele al bot un análisis del partido basado en los pronósticos
-          de la familia y el contexto del encuentro.
-        </p>
-        <BotAnalisis
-          familyPredictions={familyPredictions}
-          match={liveMatch}
-          userPrediction={
-            prediction
-              ? { colombia: prediction.colombia_score, portugal: prediction.portugal_score }
-              : null
-          }
-          triggerLabel="Pedir análisis al bot"
-        />
-      </SectionCard>
 
       <LivePredictionsFeed
         predictions={predictions.filter((p) => p.user_id !== profile?.id)}

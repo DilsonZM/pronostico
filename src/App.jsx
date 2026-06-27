@@ -1,10 +1,11 @@
-import { useState, useCallback } from 'react'
+import { useMemo, useState, useCallback } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useAuth } from './context/AuthContext'
-import { usePrediction } from './context/PredictionContext'
 import { Header, Footer } from './components/layout'
-import { LoadingScreen } from './components/ui'
+import { LoadingScreen, ChatBot } from './components/ui'
 import { Landing, Login, Prediction, MyPrediction, Admin } from './pages'
+import { useRealtimePredictions } from './hooks/useRealtimePredictions'
+import { useLiveMatch } from './hooks/useLiveMatch'
 
 const PAGES = {
   LANDING: 'landing',
@@ -93,6 +94,46 @@ export default function App() {
       </main>
 
       <Footer />
+
+      {/* Floating chat bot (only when authenticated) */}
+      {isAuthenticated && <ChatBotWrapper />}
     </div>
   )
+}
+
+/**
+ * ChatBotWrapper — gathers live match + family predictions and passes
+ * them to the ChatBot as context. The bot uses this to give specific
+ * advice and refuse off-topic questions.
+ */
+function ChatBotWrapper() {
+  const { predictions } = useRealtimePredictions()
+  const { match: liveMatch } = useLiveMatch()
+
+  const context = useMemo(() => ({
+    family_predictions: predictions.map((p) => ({
+      display_name: p.profile?.display_name || 'Anónimo',
+      colombia: p.colombia_score,
+      portugal: p.portugal_score,
+    })),
+    match: liveMatch
+      ? {
+          home: liveMatch.homeTeam?.name || 'Colombia',
+          away: liveMatch.awayTeam?.name || 'Portugal',
+          status: liveMatch.status,
+          score: liveMatch.score?.fullTime
+            ? { home: liveMatch.score.fullTime.home, away: liveMatch.score.fullTime.away }
+            : null,
+          kickoff: liveMatch.utcDate,
+          competition: liveMatch.competition || 'Mundial FIFA 2026',
+        }
+      : {
+          home: 'Colombia',
+          away: 'Portugal',
+          status: 'TIMED',
+          competition: 'Mundial FIFA 2026',
+        },
+  }), [predictions, liveMatch])
+
+  return <ChatBot context={context} />
 }
