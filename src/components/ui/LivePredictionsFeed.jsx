@@ -16,12 +16,11 @@ export default function LivePredictionsFeed({ predictions = [], loading = false,
 
   return (
     <SectionCard
-      eyebrow="En vivo"
-      title="Pronósticos de la familia"
+      title="Pronósticos en vivo"
       right={
-        <span className="inline-flex items-center gap-1.5 text-[10px] sm:text-xs font-semibold text-slate-400 bg-slate-800/60 border border-white/8 rounded-full px-2.5 py-1">
+        <span className="inline-flex items-center gap-1.5 text-[10px] sm:text-xs font-semibold text-slate-400 bg-slate-800/60 border border-white/5 rounded-full px-2.5 py-1">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-          {count} {count === 1 ? 'voto' : 'votos'}
+          {count}
         </span>
       }
     >
