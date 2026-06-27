@@ -7,7 +7,7 @@ import { useAuth } from '../../context/AuthContext'
 
 /**
  * NameEntryForm — pro style
- * Big input with team-colored focus ring, prominent CTA, clear hierarchy.
+ * Hero "¿Cómo te llamas?" + supporting line + clean input + CTA.
  */
 export default function NameEntryForm({ onSuccess, onBack }) {
   const { signInWithName } = useAuth()
@@ -54,17 +54,15 @@ export default function NameEntryForm({ onSuccess, onBack }) {
         <h2 className="font-display text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-tight">
           ¿Cómo te llamas?
         </h2>
-        <p className="text-sm text-slate-400 mt-2 leading-relaxed">
-          Solo necesitamos tu nombre<br className="sm:hidden" />
-          {' '}para registrar tu pronóstico
+        <p className="text-sm text-slate-400 mt-2">
+          Solo necesitamos tu nombre para registrar tu pronóstico
         </p>
       </div>
 
       {/* Form body */}
-      <div className="space-y-5">
+      <div className="flex flex-col gap-5">
         <Input
-          label="Tu nombre"
-          placeholder="Ej: Juan Pérez"
+          placeholder="Escribe tu nombre…"
           value={name}
           onChange={(e) => {
             setName(e.target.value)

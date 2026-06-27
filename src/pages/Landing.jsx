@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Button, MatchHero, CountdownCard, NameEntryForm } from '../components/ui'
+import { Button, MatchHero, CountdownDisplay, NameEntryForm } from '../components/ui'
 import { MATCH_DEADLINE } from '../lib/supabase'
 
 /**
- * Landing — premium tight
- * Narrow column, big hero, single CTA.
+ * Landing — premium hero
+ * Big matchup · LED countdown · single CTA · clean name form.
  */
 export default function Landing() {
   const [showName, setShowName] = useState(false)
@@ -17,24 +17,17 @@ export default function Landing() {
         background: 'radial-gradient(ellipse at top, #1e293b 0%, #0f172a 50%, #020617 100%)',
       }}
     >
-      <div className="w-full max-w-[340px] mx-auto flex flex-col gap-7">
+      <div className="w-full max-w-[360px] mx-auto flex flex-col gap-7">
         <MatchHero kickoffISO={MATCH_DEADLINE.toISOString()} />
 
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
-          className="text-center"
-        >
-          <CountdownCard deadline={MATCH_DEADLINE.toISOString()} prefix="Cierra en" />
-        </motion.div>
+        <CountdownDisplay deadline={MATCH_DEADLINE.toISOString()} />
 
         {showName ? (
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
-            className="rounded-3xl bg-slate-900/80 border border-white/10 backdrop-blur-xl p-6 sm:p-7 shadow-[0_20px_60px_rgba(0,0,0,0.5)]"
+            className="rounded-3xl bg-slate-900/85 border border-white/10 backdrop-blur-xl p-6 sm:p-7 shadow-[0_20px_60px_rgba(0,0,0,0.5)]"
           >
             <NameEntryForm onSuccess={() => {}} onBack={() => setShowName(false)} />
           </motion.div>
@@ -42,7 +35,7 @@ export default function Landing() {
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6 }}
+            transition={{ delay: 0.7 }}
             className="space-y-2.5"
           >
             <Button

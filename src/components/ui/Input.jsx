@@ -32,13 +32,15 @@ const Input = forwardRef(function Input({
             background: 'rgba(2, 6, 23, 0.7)',
             color: '#ffffff',
             border: error ? '2px solid #ef4444' : '1px solid rgba(255, 255, 255, 0.1)',
+            width: '100%',
+            display: 'block',
           }}
           className={`
             w-full px-4 py-3.5 rounded-xl
             text-base font-medium
             placeholder:text-slate-500
             focus:outline-none focus:ring-2 focus:ring-yellow-400/50 focus:border-yellow-400/40
-            transition-all duration-200
+            transition-all duration-200 box-border
             ${icon ? 'pl-14' : ''}
             ${className}
           `}
