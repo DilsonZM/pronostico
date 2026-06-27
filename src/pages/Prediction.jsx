@@ -15,7 +15,7 @@ import { useAuth } from '../context/AuthContext'
 import { MATCH_DEADLINE } from '../lib/supabase'
 
 /**
- * Prediction — narrow column, perfectly aligned with header
+ * Prediction — floating island layout
  */
 export default function Prediction() {
   const { profile } = useAuth()
@@ -41,8 +41,12 @@ export default function Prediction() {
         <p className="text-[10px] font-semibold tracking-[0.22em] uppercase text-slate-500 mb-3">
           Hola, {profile?.display_name}
         </p>
-        <MatchHero kickoffISO={MATCH_DEADLINE.toISOString()} />
       </motion.div>
+
+      {/* Match hero island */}
+      <div className="rounded-3xl bg-slate-900/55 border border-white/8 backdrop-blur-xl p-5 sm:p-6 shadow-[0_8px_30px_rgba(0,0,0,0.35)]">
+        <MatchHero kickoffISO={MATCH_DEADLINE.toISOString()} />
+      </div>
 
       <LiveMatchStrip
         match={liveMatch}

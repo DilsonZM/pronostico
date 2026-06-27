@@ -16,7 +16,7 @@ import { useAuth } from '../context/AuthContext'
 import { MATCH_DEADLINE } from '../lib/supabase'
 
 /**
- * MyPrediction — narrow column, perfectly aligned with header
+ * MyPrediction — floating island layout
  */
 export default function MyPrediction({ onEdit, onBack }) {
   const { profile } = useAuth()
@@ -36,7 +36,7 @@ export default function MyPrediction({ onEdit, onBack }) {
     return (
       <PageContainer gap="gap-4">
         <p className="text-slate-400 text-sm text-center mt-20">Aún no has pronosticado</p>
-        <div className="w-full max-w-xs mx-auto">
+        <div className="w-full">
           <Button onClick={onBack} fullWidth icon="🎯">Hacer mi pronóstico</Button>
         </div>
       </PageContainer>
@@ -47,7 +47,7 @@ export default function MyPrediction({ onEdit, onBack }) {
     <PageContainer>
       {onBack && <BackButton onClick={onBack} />}
 
-      <div className="text-center">
+      <div className="rounded-3xl bg-slate-900/55 border border-white/8 backdrop-blur-xl p-5 sm:p-6 shadow-[0_8px_30px_rgba(0,0,0,0.35)]">
         <MatchHero kickoffISO={MATCH_DEADLINE.toISOString()} />
       </div>
 
