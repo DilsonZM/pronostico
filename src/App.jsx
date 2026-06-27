@@ -42,7 +42,12 @@ export default function App() {
     if (!isAuthenticated) {
       switch (currentPage) {
         case PAGES.LOGIN:
-          return <Login onSuccess={() => navigate(PAGES.PREDICTION)} />
+          return (
+            <Login
+              onSuccess={() => navigate(PAGES.PREDICTION)}
+              onBack={() => navigate(PAGES.LANDING)}
+            />
+          )
         default:
           return <Landing onEnter={() => navigate(PAGES.LOGIN)} />
       }

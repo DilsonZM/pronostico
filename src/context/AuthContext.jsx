@@ -3,6 +3,18 @@ import { supabase } from '../lib/supabase'
 
 const AuthContext = createContext(null)
 
+// Simple hash to generate a deterministic but unique ID from a name
+function hashName(name) {
+  let hash = 0
+  const normalized = name.toLowerCase().trim()
+  for (let i = 0; i < normalized.length; i++) {
+    const char = normalized.charCodeAt(i)
+    hash = (hash << 5) - hash + char
+    hash |= 0
+  }
+  return Math.abs(hash).toString(36)
+}
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [profile, setProfile] = useState(null)
@@ -16,9 +28,9 @@ export function AuthProvider({ children }) {
         .from('profiles')
         .select('*')
         .eq('id', userId)
-        .single()
+        .maybeSingle()
 
-      if (error && error.code !== 'PGRST116') {
+      if (error) {
         console.error('Error fetching profile:', error)
         return null
       }
@@ -29,112 +41,87 @@ export function AuthProvider({ children }) {
     }
   }, [])
 
-  // Initialize auth state
-  useEffect(() => {
-    let mounted = true
-
-    const initAuth = async () => {
-      try {
-        const { data: { session: currentSession } } = await supabase.auth.getSession()
-
-        if (!mounted) return
-
-        setSession(currentSession)
-        setUser(currentSession?.user ?? null)
-
-        if (currentSession?.user) {
-          const profileData = await fetchProfile(currentSession.user.id)
-          if (mounted) setProfile(profileData)
-        }
-      } catch (err) {
-        console.error('Auth init error:', err)
-      } finally {
-        if (mounted) setLoading(false)
-      }
-    }
-
-    initAuth()
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, newSession) => {
-        if (!mounted) return
-
-        setSession(newSession)
-        setUser(newSession?.user ?? null)
-
-        if (newSession?.user) {
-          const profileData = await fetchProfile(newSession.user.id)
-          if (mounted) setProfile(profileData)
-        } else {
-          if (mounted) setProfile(null)
-        }
-      }
-    )
-
-    return () => {
-      mounted = false
-      subscription.unsubscribe()
-    }
-  }, [fetchProfile])
-
-  // Sign in anonymously with display name
+  // Sign in with name: creates a deterministic "user" by upserting a profile directly
+  // Since anonymous auth may be disabled, we use profile-based identity
   const signInWithName = useCallback(async (displayName) => {
     try {
-      // First try anonymous sign in
-      const { data, error } = await supabase.auth.signInAnonymously({
-        options: {
-          data: {
-            display_name: displayName,
-          },
-        },
-      })
+      // Use a deterministic UUID v5-like based on the name
+      // This way the same name always gets the same user
+      const userId = await generateUUIDFromName(displayName)
 
-      if (error) throw error
+      // Upsert the profile
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .upsert({
+          id: userId,
+          display_name: displayName,
+        }, { onConflict: 'id' })
+        .select()
+        .single()
 
-      // Wait a moment for the trigger to create the profile
-      await new Promise(resolve => setTimeout(resolve, 1000))
-
-      // Update profile display name
-      if (data.user) {
-        const { error: updateError } = await supabase
-          .from('profiles')
-          .update({ display_name: displayName })
-          .eq('id', data.user.id)
-
-        if (updateError) {
-          // If update fails, try insert
-          const { error: insertError } = await supabase
-            .from('profiles')
-            .upsert({
-              id: data.user.id,
-              display_name: displayName,
-            }, { onConflict: 'id' })
-
-          if (insertError) console.error('Profile upsert error:', insertError)
-        }
-
-        const profileData = await fetchProfile(data.user.id)
-        setProfile(profileData)
+      if (profileError) {
+        console.error('Profile upsert error:', profileError)
+        throw profileError
       }
 
-      return { user: data.user, error: null }
+      // Create a fake "user" object for the app
+      const fakeUser = {
+        id: userId,
+        email: `${userId}@pronostico.app`,
+        user_metadata: { display_name: displayName },
+        app_metadata: {},
+        aud: 'authenticated',
+        created_at: new Date().toISOString(),
+      }
+
+      // Save to localStorage for persistence
+      const sessionData = {
+        user: fakeUser,
+        profile: profileData,
+        timestamp: Date.now(),
+      }
+      localStorage.setItem('pronostico-session', JSON.stringify(sessionData))
+
+      setUser(fakeUser)
+      setProfile(profileData)
+      setSession(sessionData)
+
+      return { user: fakeUser, error: null }
     } catch (err) {
       console.error('Sign in error:', err)
       return { user: null, error: err }
     }
-  }, [fetchProfile])
+  }, [])
 
   // Sign out
   const signOut = useCallback(async () => {
     try {
-      await supabase.auth.signOut()
+      localStorage.removeItem('pronostico-session')
       setUser(null)
       setProfile(null)
       setSession(null)
-      localStorage.removeItem('pronostico-auth-token')
     } catch (err) {
       console.error('Sign out error:', err)
+    }
+  }, [])
+
+  // Initialize from localStorage
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('pronostico-session')
+      if (stored) {
+        const sessionData = JSON.parse(stored)
+        // Verify the profile still exists in DB
+        if (sessionData?.user?.id) {
+          setUser(sessionData.user)
+          setProfile(sessionData.profile)
+          setSession(sessionData)
+        }
+      }
+    } catch (err) {
+      console.error('Error loading session:', err)
+    } finally {
+      setLoading(false)
     }
   }, [])
 
@@ -153,6 +140,27 @@ export function AuthProvider({ children }) {
       {children}
     </AuthContext.Provider>
   )
+}
+
+// Generate a deterministic UUID v4 format string from a name
+async function generateUUIDFromName(name) {
+  const normalized = name.toLowerCase().trim()
+  const encoder = new TextEncoder()
+  const data = encoder.encode(normalized + 'pronostico-salt-2026')
+
+  // Use crypto.subtle to hash
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data)
+  const hashArray = Array.from(new Uint8Array(hashBuffer))
+
+  // Format as UUID v4
+  const hex = hashArray.slice(0, 16).map(b => b.toString(16).padStart(2, '0')).join('')
+  return [
+    hex.slice(0, 8),
+    hex.slice(8, 12),
+    '4' + hex.slice(13, 16), // version 4
+    ((parseInt(hex.slice(16, 17), 16) & 0x3) | 0x8).toString(16) + hex.slice(17, 20),
+    hex.slice(20, 32),
+  ].join('-')
 }
 
 export function useAuth() {

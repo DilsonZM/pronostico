@@ -11,26 +11,30 @@ const Input = forwardRef(function Input({
   return (
     <div className="w-full">
       {label && (
-        <label className="block text-sm font-medium text-dark-300 mb-2">
+        <label className="block text-sm font-medium text-white mb-2 font-semibold">
           {label}
         </label>
       )}
       <div className="relative">
         {icon && (
-          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-dark-400 text-lg">
+          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-2xl pointer-events-none z-10">
             {icon}
           </span>
         )}
         <input
           ref={ref}
+          style={{
+            background: 'rgba(15, 23, 42, 0.7)',
+            color: '#ffffff',
+            border: error ? '2px solid #ef4444' : '1px solid rgba(255, 255, 255, 0.15)',
+          }}
           className={`
-            w-full px-4 py-3.5 rounded-xl
-            glass text-white text-lg font-medium
-            placeholder:text-dark-500
-            focus:outline-none focus:ring-2 focus:ring-colombia-yellow/50 focus:border-colombia-yellow/50
+            w-full px-4 py-4 rounded-xl
+            text-white text-lg font-medium
+            placeholder:text-slate-500
+            focus:outline-none focus:ring-2 focus:ring-colombia-yellow
             transition-all duration-200
-            ${icon ? 'pl-12' : ''}
-            ${error ? 'ring-2 ring-red-500/50 border-red-500/50' : ''}
+            ${icon ? 'pl-14' : ''}
             ${className}
           `}
           {...props}

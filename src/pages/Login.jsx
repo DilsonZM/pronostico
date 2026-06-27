@@ -1,9 +1,10 @@
 import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
+import toast from 'react-hot-toast'
 import { Button, Input, MatchCard } from '../components/ui'
 import { useAuth } from '../context/AuthContext'
 
-export default function Login({ onSuccess }) {
+export default function Login({ onSuccess, onBack }) {
   const { signInWithName } = useAuth()
   const [name, setName] = useState('')
   const [error, setError] = useState('')
@@ -32,11 +33,14 @@ export default function Login({ onSuccess }) {
       const { user, error: authError } = await signInWithName(trimmed)
       if (authError) {
         setError('Error al iniciar sesión. Intenta de nuevo.')
+        toast.error('Error al iniciar sesión')
         return
       }
+      toast.success(`¡Bienvenido ${trimmed}!`)
       onSuccess?.()
     } catch (err) {
       setError('Error inesperado. Intenta de nuevo.')
+      toast.error('Error inesperado')
     } finally {
       setLoading(false)
     }
@@ -46,17 +50,18 @@ export default function Login({ onSuccess }) {
     <div className="min-h-[100dvh] flex flex-col items-center justify-center px-4 py-8 bg-pitch-pattern">
       {/* Decorative */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-40 -right-20 w-80 h-80 rounded-full bg-colombia-yellow/5 blur-3xl" />
-        <div className="absolute bottom-40 -left-20 w-80 h-80 rounded-full bg-portugal-green/5 blur-3xl" />
+        <div className="absolute top-40 -right-20 w-80 h-80 rounded-full bg-colombia-yellow/10 blur-3xl" />
+        <div className="absolute bottom-40 -left-20 w-80 h-80 rounded-full bg-portugal-green/10 blur-3xl" />
       </div>
 
-      <div className="relative z-10 w-full max-w-md flex flex-col items-center gap-8">
+      <div className="relative z-10 w-full max-w-md flex flex-col items-center gap-6">
         {/* Back button */}
         <motion.button
           initial={{ opacity: 0, x: -10 }}
           animate={{ opacity: 1, x: 0 }}
-          onClick={() => window.location.reload()}
-          className="self-start flex items-center gap-2 text-dark-400 hover:text-white transition-colors text-sm"
+          onClick={onBack}
+          type="button"
+          className="self-start flex items-center gap-2 text-slate-300 hover:text-white transition-colors text-sm font-medium"
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M19 12H5M12 19l-7-7 7-7"/>
@@ -75,53 +80,57 @@ export default function Login({ onSuccess }) {
         </motion.div>
 
         {/* Form */}
-        <motion.div
+        <motion.form
+          onSubmit={handleSubmit}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="w-full glass rounded-3xl p-6 sm:p-8"
+          style={{
+            background: 'rgba(15, 23, 42, 0.85)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            boxShadow: '0 20px 60px rgba(0, 0, 0, 0.5)',
+          }}
+          className="w-full rounded-3xl p-6 sm:p-8 space-y-5"
         >
-          <div className="text-center mb-6">
-            <h2 className="font-display text-2xl font-bold text-white tracking-wide">
+          <div className="text-center">
+            <h2 className="font-display text-2xl sm:text-3xl font-bold text-white tracking-wide">
               ¿Cuál es tu nombre?
             </h2>
-            <p className="text-sm text-dark-400 mt-2">
+            <p className="text-sm text-slate-400 mt-2">
               Ingresa tu nombre para hacer tu pronóstico
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <Input
-              label="Tu nombre"
-              placeholder="Ej: Juan Pérez"
-              icon="👤"
-              value={name}
-              onChange={(e) => {
-                setName(e.target.value)
-                setError('')
-              }}
-              error={error}
-              maxLength={50}
-              autoFocus
-              autoComplete="name"
-            />
+          <Input
+            label="Tu nombre"
+            placeholder="Ej: Juan Pérez"
+            icon="👤"
+            value={name}
+            onChange={(e) => {
+              setName(e.target.value)
+              if (error) setError('')
+            }}
+            error={error}
+            disabled={loading}
+            maxLength={50}
+            autoFocus
+          />
 
-            <Button
-              type="submit"
-              size="lg"
-              fullWidth
-              loading={loading}
-              disabled={!name.trim()}
-              icon="🎯"
-            >
-              Entrar y pronosticar
-            </Button>
-          </form>
+          <Button
+            type="submit"
+            size="lg"
+            fullWidth
+            loading={loading}
+            disabled={loading || !name.trim()}
+            icon="🎯"
+          >
+            {loading ? 'Entrando...' : 'Entrar y pronosticar'}
+          </Button>
 
-          <p className="text-center text-xs text-dark-600 mt-4">
+          <p className="text-center text-xs text-slate-500">
             No necesitas contraseña. Tu sesión se guarda automáticamente.
           </p>
-        </motion.div>
+        </motion.form>
       </div>
     </div>
   )
