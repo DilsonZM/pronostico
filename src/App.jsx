@@ -4,8 +4,7 @@ import { useAuth } from './context/AuthContext'
 import { Header, Footer } from './components/layout'
 import { LoadingScreen, ChatBot } from './components/ui'
 import { Landing, Login, Prediction, MyPrediction, Admin } from './pages'
-import { useRealtimePredictions } from './hooks/useRealtimePredictions'
-import { useLiveMatch } from './hooks/useLiveMatch'
+import { LiveDataProvider, useLiveData } from './context/LiveDataContext'
 
 const PAGES = {
   LANDING: 'landing',
@@ -23,6 +22,14 @@ const pageTransition = {
 }
 
 export default function App() {
+  return (
+    <LiveDataProvider>
+      <AppShell />
+    </LiveDataProvider>
+  )
+}
+
+function AppShell() {
   const { isAuthenticated, loading: authLoading } = useAuth()
   const [currentPage, setCurrentPage] = useState(PAGES.LANDING)
 
@@ -95,20 +102,13 @@ export default function App() {
 
       <Footer />
 
-      {/* Floating chat bot (only when authenticated) */}
-      {isAuthenticated && <ChatBotWrapper />}
+      {isAuthenticated && <ChatBotFloating />}
     </div>
   )
 }
 
-/**
- * ChatBotWrapper — gathers live match + family predictions and passes
- * them to the ChatBot as context. The bot uses this to give specific
- * advice and refuse off-topic questions.
- */
-function ChatBotWrapper() {
-  const { predictions } = useRealtimePredictions()
-  const { match: liveMatch } = useLiveMatch()
+function ChatBotFloating() {
+  const { predictions, liveMatch } = useLiveData()
 
   const context = useMemo(() => ({
     family_predictions: predictions.map((p) => ({

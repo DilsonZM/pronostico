@@ -10,29 +10,30 @@ import {
 } from '../components/ui'
 import { PageContainer } from '../components/layout'
 import { usePrediction } from '../context/PredictionContext'
-import { useLiveMatch } from '../hooks/useLiveMatch'
-import { useRealtimePredictions } from '../hooks/useRealtimePredictions'
+import { useLiveData } from '../context/LiveDataContext'
 import { useAuth } from '../context/AuthContext'
 import { MATCH_DEADLINE } from '../lib/supabase'
 
 /**
  * Prediction — floating island layout
- * The AI chatbot is now globally available via the floating action button
- * in the bottom-right of any authenticated screen.
+ * Reads live data from shared LiveDataContext (single subscription).
+ * The chat bot is available globally via the floating action button.
  */
 export default function Prediction() {
   const { profile } = useAuth()
   const { prediction, loading: predLoading } = usePrediction()
   const {
-    match: liveMatch,
-    loading: liveLoading,
-    error: liveError,
-    refresh: refreshLive,
-    lastUpdated: liveLastUpdated,
+    predictions,
+    liveMatch,
+    liveLoading,
+    liveError,
+    refreshLive,
+    liveLastUpdated,
     isActive,
     isFinished,
-  } = useLiveMatch()
-  const { predictions, loading: feedLoading, newIds } = useRealtimePredictions()
+    loading: feedLoading,
+    newIds,
+  } = useLiveData()
 
   const consensus = useMemo(() => {
     if (!predictions.length) return null
