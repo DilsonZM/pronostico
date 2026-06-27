@@ -27,10 +27,15 @@ export default function MatchCard({ compact = false }) {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="glass rounded-3xl p-6 sm:p-8"
+      style={{
+        background: 'rgba(30, 41, 59, 0.7)',
+        border: '1px solid rgba(255, 255, 255, 0.1)',
+        backdropFilter: 'blur(20px)',
+      }}
+      className="rounded-3xl p-6 sm:p-8"
     >
       <div className="text-center mb-4">
-        <span className="text-xs font-medium text-dark-500 uppercase tracking-widest">
+        <span className="text-xs font-medium text-slate-400 uppercase tracking-widest">
           Último partido de grupos · Mundial FIFA 2026
         </span>
       </div>
@@ -47,7 +52,7 @@ export default function MatchCard({ compact = false }) {
           <div className="font-display text-3xl sm:text-4xl font-bold text-white/20">
             VS
           </div>
-          <span className="text-xs text-dark-500">28 Jun 2026</span>
+          <span className="text-xs text-slate-400">27 Jun 2026</span>
         </div>
         <TeamBadge
           code="POR"

@@ -47,7 +47,12 @@ export default function Login({ onSuccess, onBack }) {
   }
 
   return (
-    <div className="min-h-[100dvh] flex flex-col items-center justify-center px-4 py-8 bg-pitch-pattern">
+    <div
+      className="min-h-[100dvh] flex flex-col items-center justify-center px-4 py-8"
+      style={{
+        background: 'radial-gradient(ellipse at top, #1e293b 0%, #0f172a 50%, #020617 100%)',
+      }}
+    >
       {/* Decorative */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-40 -right-20 w-80 h-80 rounded-full bg-colombia-yellow/10 blur-3xl" />
@@ -86,9 +91,9 @@ export default function Login({ onSuccess, onBack }) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
           style={{
-            background: 'rgba(15, 23, 42, 0.85)',
+            background: '#0f172a',
             border: '1px solid rgba(255, 255, 255, 0.1)',
-            boxShadow: '0 20px 60px rgba(0, 0, 0, 0.5)',
+            boxShadow: '0 20px 60px rgba(0, 0, 0, 0.6)',
           }}
           className="w-full rounded-3xl p-6 sm:p-8 space-y-5"
         >

@@ -17,20 +17,26 @@ const Input = forwardRef(function Input({
       )}
       <div className="relative">
         {icon && (
-          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-2xl pointer-events-none z-10">
-            {icon}
+          <span
+            className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none z-10 flex items-center justify-center"
+            style={{ width: '24px', height: '24px', color: '#FCD116' }}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+            </svg>
           </span>
         )}
         <input
           ref={ref}
           style={{
-            background: 'rgba(15, 23, 42, 0.7)',
-            color: '#ffffff',
+            background: 'rgba(15, 23, 42, 0.9) !important',
+            color: '#ffffff !important',
             border: error ? '2px solid #ef4444' : '1px solid rgba(255, 255, 255, 0.15)',
+            fontSize: '1.125rem',
+            fontWeight: '500',
           }}
           className={`
             w-full px-4 py-4 rounded-xl
-            text-white text-lg font-medium
             placeholder:text-slate-500
             focus:outline-none focus:ring-2 focus:ring-colombia-yellow
             transition-all duration-200
