@@ -6,10 +6,11 @@ import Input from './Input'
 import { useAuth } from '../../context/AuthContext'
 
 /**
- * NameEntryForm — pro style
- * Hero "¿Cómo te llamas?" + supporting line + clean input + CTA.
+ * NameEntryForm — clean, no duplicate title
+ * The "¿Cómo te llamas?" header is rendered by the parent (Landing) card,
+ * not here, to avoid duplication.
  */
-export default function NameEntryForm({ onSuccess, onBack }) {
+export default function NameEntryForm({ onSuccess, onBack, showHeader = true }) {
   const { signInWithName } = useAuth()
   const [name, setName] = useState('')
   const [error, setError] = useState('')
@@ -49,18 +50,16 @@ export default function NameEntryForm({ onSuccess, onBack }) {
       transition={{ duration: 0.4, ease: 'easeOut' }}
       className="w-full"
     >
-      {/* Header */}
-      <div className="text-center mb-6">
-        <h2 className="font-display text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-tight">
-          ¿Cómo te llamas?
-        </h2>
-        <p className="text-sm text-slate-400 mt-2">
-          Solo necesitamos tu nombre para registrar tu pronóstico
-        </p>
-      </div>
+      {showHeader && (
+        <div className="text-center mb-5">
+          <h2 className="text-lg font-semibold text-white">¿Cómo te llamas?</h2>
+          <p className="text-xs text-slate-400 mt-1">
+            Solo necesitamos tu nombre para registrar tu pronóstico
+          </p>
+        </div>
+      )}
 
-      {/* Form body */}
-      <div className="flex flex-col gap-5">
+      <div className="flex flex-col gap-4">
         <Input
           placeholder="Escribe tu nombre…"
           value={name}

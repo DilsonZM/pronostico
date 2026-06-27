@@ -26,12 +26,6 @@ export default function Landing() {
           transition={{ duration: 0.4 }}
           className="rounded-2xl bg-slate-900/85 border border-white/10 p-6"
         >
-          <div className="text-center mb-5">
-            <h2 className="text-lg font-semibold text-white">¿Cómo te llamas?</h2>
-            <p className="text-xs text-slate-400 mt-1">
-              Solo necesitamos tu nombre para registrar tu pronóstico
-            </p>
-          </div>
           <NameEntryForm onSuccess={() => {}} onBack={() => setShowName(false)} />
         </motion.div>
       ) : (

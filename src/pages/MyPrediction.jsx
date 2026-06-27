@@ -8,6 +8,7 @@ import {
   PredictionComparison,
   LivePredictionsFeed,
   SectionCard,
+  BotSuggestion,
 } from '../components/ui'
 import { PageContainer } from '../components/layout'
 import { usePrediction } from '../context/PredictionContext'
@@ -93,6 +94,13 @@ export default function MyPrediction({ onEdit, onBack }) {
           </p>
         )}
       </SectionCard>
+
+      {/* Bot suggestion — non-intrusive advice */}
+      <BotSuggestion
+        prediction={prediction}
+        familyPredictions={predictions}
+        match={liveMatch}
+      />
 
       {liveMatch && (
         <SectionCard title="Tu pronóstico vs. resultado" delay={0.1}>
