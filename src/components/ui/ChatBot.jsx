@@ -2,19 +2,16 @@ import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 /**
- * ChatBot — floating assistant for sports predictions
- *
- * - Floating action button (FAB) in bottom-right
- * - Slide-up panel with chat bubbles
- * - Calls /api/analisis with full message history
- * - Strict prompt — only sports prediction topics (handled server-side)
+ * ChatBot — FAB + chat panel
+ * - No auto-focus (user can click to focus)
+ * - Sans-serif, clean, no glow
  */
 export default function ChatBot({ context = {} }) {
   const [open, setOpen] = useState(false)
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      content: '¡Hola! Soy **Predicto** 🤖⚽. Pregúntame sobre el partido, los pronósticos de la familia, o pide un análisis. Solo respondo temas de pronósticos deportivos 🏟️.',
+      content: '¡Hola! Soy **Predicto** 🤖⚽. Pregúntame sobre el partido o los pronósticos de la familia. Solo respondo temas de pronósticos deportivos 🏟️.',
     },
   ])
   const [input, setInput] = useState('')
@@ -23,12 +20,11 @@ export default function ChatBot({ context = {} }) {
   const scrollRef = useRef(null)
   const inputRef = useRef(null)
 
-  // Suggested questions (rotating)
   const suggestions = [
-    '¿Quién tiene más chances de ganar?',
-    '¿Cuál es el consenso de la familia?',
-    '¿Qué marcador me recomiendas?',
-    '¿Cómo está el partido ahora?',
+    '¿Quién tiene más chances?',
+    '¿Cuál es el consenso?',
+    '¿Marcador recomendado?',
+    '¿Cómo va el partido?',
   ]
 
   useEffect(() => {
@@ -37,11 +33,7 @@ export default function ChatBot({ context = {} }) {
     }
   }, [messages, loading, open])
 
-  useEffect(() => {
-    if (open) {
-      setTimeout(() => inputRef.current?.focus(), 200)
-    }
-  }, [open])
+  // NOTE: do not auto-focus the textarea. User clicks when ready.
 
   async function sendMessage(text) {
     const trimmed = text.trim()
@@ -58,14 +50,11 @@ export default function ChatBot({ context = {} }) {
       const res = await fetch('/api/analisis', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          messages: newMessages,
-          context,
-        }),
+        body: JSON.stringify({ messages: newMessages, context }),
       })
       const data = await res.json()
       if (!res.ok) {
-        setError(data?.message || 'No pude contactar al bot')
+        setError(data?.message || data?.error || 'No pude contactar al bot')
         return
       }
       const reply = data.reply || 'Sin respuesta del bot.'
@@ -91,62 +80,41 @@ export default function ChatBot({ context = {} }) {
 
   function handleClear() {
     setMessages([
-      {
-        role: 'assistant',
-        content: '¡Conversación reiniciada! 🤖⚽ Pregúntame lo que quieras sobre el partido.',
-      },
+      { role: 'assistant', content: 'Conversación reiniciada 🤖⚽. ¿Algo del partido?' },
     ])
     setError('')
   }
 
   return (
     <>
-      {/* Floating action button */}
+      {/* Floating action button — integrated, less prominent */}
       <motion.button
         initial={{ scale: 0, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        transition={{ type: 'spring', stiffness: 260, damping: 18, delay: 0.5 }}
-        whileHover={{ scale: 1.08 }}
-        whileTap={{ scale: 0.92 }}
+        transition={{ type: 'spring', stiffness: 240, damping: 20, delay: 0.4 }}
+        whileHover={{ scale: 1.06 }}
+        whileTap={{ scale: 0.94 }}
         onClick={() => setOpen((v) => !v)}
-        className="fixed z-40 bottom-5 right-5 w-14 h-14 rounded-full
-          flex items-center justify-center text-2xl
-          shadow-[0_8px_30px_rgba(0,102,0,0.5)]
-          border border-white/15"
-        style={{
-          background: 'linear-gradient(135deg, #006600 0%, #FCD116 100%)',
-        }}
+        className="fixed z-40 bottom-5 right-5 w-12 h-12 rounded-full
+          flex items-center justify-center text-lg
+          border border-white/15
+          bg-slate-900/85 backdrop-blur-md text-white"
         aria-label="Abrir chat con el bot"
         title="Predicto · Chatbot de pronósticos"
       >
         <AnimatePresence mode="wait" initial={false}>
           {open ? (
-            <motion.span
-              key="close"
-              initial={{ rotate: -90, opacity: 0 }}
-              animate={{ rotate: 0, opacity: 1 }}
-              exit={{ rotate: 90, opacity: 0 }}
-              transition={{ duration: 0.18 }}
-              className="text-slate-900 font-bold text-xl"
-              aria-hidden
-            >
+            <motion.span key="close" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }} transition={{ duration: 0.18 }} aria-hidden>
               ✕
             </motion.span>
           ) : (
-            <motion.span
-              key="bot"
-              initial={{ scale: 0.5, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.5, opacity: 0 }}
-              transition={{ duration: 0.18 }}
-              aria-hidden
-            >
+            <motion.span key="bot" initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.5, opacity: 0 }} transition={{ duration: 0.18 }} aria-hidden>
               🤖
             </motion.span>
           )}
         </AnimatePresence>
         {!open && (
-          <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-red-500 border-2 border-slate-900 animate-pulse" />
+          <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-slate-900" />
         )}
       </motion.button>
 
@@ -154,14 +122,13 @@ export default function ChatBot({ context = {} }) {
       <AnimatePresence>
         {open && (
           <>
-            {/* Backdrop on mobile */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
               onClick={() => setOpen(false)}
-              className="sm:hidden fixed inset-0 z-40 bg-slate-950/70 backdrop-blur-sm"
+              className="sm:hidden fixed inset-0 z-40 bg-slate-950/60 backdrop-blur-sm"
             />
 
             <motion.div
@@ -173,63 +140,46 @@ export default function ChatBot({ context = {} }) {
                 sm:w-[380px] sm:max-w-[calc(100vw-2.5rem)] sm:h-[600px] sm:max-h-[calc(100vh-7rem)]
                 h-[90dvh]
                 flex flex-col
-                rounded-t-3xl sm:rounded-3xl
+                rounded-t-2xl sm:rounded-2xl
                 bg-slate-900/95 border border-white/10 backdrop-blur-xl
-                shadow-[0_-12px_50px_rgba(0,0,0,0.6)]
+                shadow-[0_-12px_50px_rgba(0,0,0,0.5)]
                 overflow-hidden"
             >
-              {/* Header */}
-              <header className="flex items-center justify-between gap-3 px-4 py-3 border-b border-white/5
-                bg-gradient-to-r from-emerald-900/30 to-yellow-900/20">
+              <header className="flex items-center justify-between gap-3 px-4 py-3 border-b border-white/5 bg-slate-900/80">
                 <div className="flex items-center gap-2.5 min-w-0">
                   <div
-                    className="w-9 h-9 rounded-full flex items-center justify-center text-lg shrink-0"
-                    style={{
-                      background: 'linear-gradient(135deg, #006600 0%, #FCD116 100%)',
-                      boxShadow: '0 0 16px rgba(0,102,0,0.4)',
-                    }}
+                    className="w-8 h-8 rounded-full flex items-center justify-center text-sm shrink-0"
+                    style={{ background: 'linear-gradient(135deg, #006600 0%, #FCD116 100%)' }}
                     aria-hidden
                   >
                     🤖
                   </div>
                   <div className="min-w-0">
-                    <h2 className="font-display text-sm font-bold text-white tracking-wide leading-tight">
-                      Predicto
-                    </h2>
+                    <h2 className="text-sm font-semibold text-white leading-tight">Predicto</h2>
                     <p className="text-[10px] text-slate-400 flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                      En línea · Solo pronósticos deportivos
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                      Solo pronósticos deportivos
                     </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-1">
-                  <button
-                    onClick={handleClear}
-                    className="w-8 h-8 rounded-full text-slate-400 hover:text-white hover:bg-white/5 flex items-center justify-center transition-colors"
-                    aria-label="Reiniciar conversación"
-                    title="Reiniciar"
-                  >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <button onClick={handleClear} className="w-8 h-8 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 flex items-center justify-center transition-colors" aria-label="Reiniciar">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M21 2v6h-6M3 12a9 9 0 0 1 15-6.7L21 8M3 22v-6h6M21 12a9 9 0 0 1-15 6.7L3 16" />
                     </svg>
                   </button>
-                  <button
-                    onClick={() => setOpen(false)}
-                    className="w-8 h-8 rounded-full text-slate-400 hover:text-white hover:bg-white/5 flex items-center justify-center transition-colors sm:hidden"
-                    aria-label="Cerrar"
-                  >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <button onClick={() => setOpen(false)} className="w-8 h-8 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 flex items-center justify-center transition-colors sm:hidden" aria-label="Cerrar">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M18 6L6 18M6 6l12 12" />
                     </svg>
                   </button>
                 </div>
               </header>
 
-              {/* Messages */}
               <div
                 ref={scrollRef}
-                className="flex-1 overflow-y-auto px-4 py-4 space-y-3
-                  bg-gradient-to-b from-slate-900/40 to-slate-950/40"
+                className="flex-1 overflow-y-auto px-4 py-4 space-y-3"
+                style={{ background: 'rgba(2, 6, 23, 0.5)' }}
               >
                 {messages.map((m, i) => (
                   <MessageBubble key={i} role={m.role} content={m.content} />
@@ -243,15 +193,14 @@ export default function ChatBot({ context = {} }) {
                   </div>
                 )}
 
-                {/* Suggestions when chat is fresh */}
                 {messages.length <= 1 && !loading && (
                   <motion.div
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 }}
-                    className="pt-2 space-y-2"
+                    transition={{ delay: 0.2 }}
+                    className="pt-2 space-y-1.5"
                   >
-                    <p className="text-[10px] uppercase tracking-widest text-slate-500 font-bold pl-1">
+                    <p className="text-[10px] uppercase tracking-widest text-slate-500 font-semibold pl-1">
                       Prueba con:
                     </p>
                     {suggestions.map((s, i) => (
@@ -271,11 +220,7 @@ export default function ChatBot({ context = {} }) {
                 )}
               </div>
 
-              {/* Input */}
-              <form
-                onSubmit={handleSubmit}
-                className="border-t border-white/5 p-3 bg-slate-900/80"
-              >
+              <form onSubmit={handleSubmit} className="border-t border-white/5 p-3 bg-slate-900/80">
                 <div className="flex items-end gap-2">
                   <textarea
                     ref={inputRef}
@@ -284,7 +229,7 @@ export default function ChatBot({ context = {} }) {
                     onKeyDown={handleKey}
                     rows={1}
                     maxLength={500}
-                    placeholder="Pregúntale algo sobre el partido…"
+                    placeholder="Pregúntale al bot…"
                     disabled={loading}
                     className="flex-1 resize-none rounded-2xl bg-slate-950/70 border border-white/10
                       text-white text-sm placeholder:text-slate-500
@@ -297,10 +242,9 @@ export default function ChatBot({ context = {} }) {
                     type="submit"
                     disabled={loading || !input.trim()}
                     className="shrink-0 w-10 h-10 rounded-full flex items-center justify-center
-                      bg-gradient-to-br from-yellow-400 to-amber-500 text-slate-900 font-bold
-                      shadow-[0_4px_14px_rgba(252,209,22,0.4)]
-                      hover:from-yellow-300 hover:to-amber-400
-                      disabled:opacity-30 disabled:cursor-not-allowed disabled:shadow-none
+                      bg-yellow-400 text-slate-900 font-bold
+                      hover:bg-yellow-300
+                      disabled:opacity-30 disabled:cursor-not-allowed
                       transition-all"
                     aria-label="Enviar"
                   >
@@ -314,7 +258,7 @@ export default function ChatBot({ context = {} }) {
                   </button>
                 </div>
                 <p className="text-[9px] text-slate-500 text-center mt-2">
-                  Solo responde temas de pronósticos deportivos ⚽ · Enter para enviar
+                  Solo pronósticos deportivos ⚽ · Enter para enviar
                 </p>
               </form>
             </motion.div>
@@ -329,9 +273,9 @@ function MessageBubble({ role, content }) {
   const isUser = role === 'user'
   return (
     <motion.div
-      initial={{ opacity: 0, y: 8, scale: 0.98 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ duration: 0.25 }}
+      initial={{ opacity: 0, y: 6 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.2 }}
       className={`flex items-end gap-2 ${isUser ? 'flex-row-reverse' : ''}`}
     >
       {!isUser && (
@@ -347,7 +291,7 @@ function MessageBubble({ role, content }) {
         className={`
           max-w-[78%] px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed
           ${isUser
-            ? 'bg-gradient-to-br from-yellow-400 to-amber-500 text-slate-900 rounded-br-md font-medium'
+            ? 'bg-yellow-400 text-slate-900 rounded-br-md font-medium'
             : 'bg-slate-800/80 border border-white/5 text-slate-100 rounded-bl-md'
           }
         `}
@@ -378,7 +322,6 @@ function TypingBubble() {
 }
 
 function RenderMarkdown({ text }) {
-  // Lightweight inline renderer: bold, line breaks, bullets
   const lines = text.split('\n')
   return (
     <div className="space-y-1.5">
@@ -387,7 +330,7 @@ function RenderMarkdown({ text }) {
         if (!trimmed) return <div key={i} className="h-1" />
         if (trimmed.startsWith('## ')) {
           return (
-            <div key={i} className="font-display text-[13px] font-bold text-white pt-1 border-t border-white/5 first:border-0 first:pt-0">
+            <div key={i} className="text-[12px] font-bold text-white pt-1 first:pt-0">
               {renderInline(trimmed.slice(3))}
             </div>
           )

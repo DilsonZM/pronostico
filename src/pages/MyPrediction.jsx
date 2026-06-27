@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { motion } from 'framer-motion'
 import {
   Button,
@@ -10,46 +11,55 @@ import {
 } from '../components/ui'
 import { PageContainer } from '../components/layout'
 import { usePrediction } from '../context/PredictionContext'
-import { useLiveMatch } from '../hooks/useLiveMatch'
-import { useRealtimePredictions } from '../hooks/useRealtimePredictions'
+import { useLiveData } from '../context/LiveDataContext'
 import { useAuth } from '../context/AuthContext'
+import { isPast } from '../lib/date-utils'
 import { MATCH_DEADLINE } from '../lib/supabase'
 
-/**
- * MyPrediction — floating island layout
- */
 export default function MyPrediction({ onEdit, onBack }) {
   const { profile } = useAuth()
   const { prediction } = usePrediction()
   const {
-    match: liveMatch,
-    loading: liveLoading,
-    error: liveError,
-    refresh: refreshLive,
+    predictions,
+    liveMatch,
+    liveLoading,
+    liveError,
+    refreshLive,
     isActive,
     isFinished,
-    lastUpdated: liveLastUpdated,
-  } = useLiveMatch()
-  const { predictions, loading: feedLoading, newIds } = useRealtimePredictions()
+    liveLastUpdated,
+    loading: feedLoading,
+    newIds,
+  } = useLiveData()
+
+  const canEdit = !isPast(MATCH_DEADLINE) && !isFinished
 
   if (!prediction) {
     return (
       <PageContainer gap="gap-4">
         <p className="text-slate-400 text-sm text-center mt-20">Aún no has pronosticado</p>
-        <div className="w-full">
-          <Button onClick={onBack} fullWidth icon="🎯">Hacer mi pronóstico</Button>
-        </div>
+        <Button onClick={onBack} fullWidth icon="🎯">Hacer mi pronóstico</Button>
       </PageContainer>
     )
   }
 
   return (
     <PageContainer>
-      {onBack && <BackButton onClick={onBack} />}
+      {onBack && (
+        <button
+          onClick={onBack}
+          className="self-start inline-flex items-center gap-1.5 text-sm text-slate-400 hover:text-white transition-colors"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M19 12H5M12 19l-7-7 7-7" />
+          </svg>
+          Volver
+        </button>
+      )}
 
-      <div className="rounded-3xl bg-slate-900/55 border border-white/8 backdrop-blur-xl p-5 sm:p-6 shadow-[0_8px_30px_rgba(0,0,0,0.35)]">
+      <SectionCard delay={0.05}>
         <MatchHero kickoffISO={MATCH_DEADLINE.toISOString()} />
-      </div>
+      </SectionCard>
 
       <LiveMatchStrip
         match={liveMatch}
@@ -64,8 +74,8 @@ export default function MyPrediction({ onEdit, onBack }) {
 
       <SectionCard title="Tu pronóstico" delay={0.05}>
         <MyPredictionCard prediction={prediction} />
-        {onEdit && (
-          <div className="mt-5 pt-5 border-t border-white/5">
+        {onEdit && canEdit && (
+          <div className="mt-4 pt-4 border-t border-white/5">
             <Button
               size="md"
               fullWidth
@@ -73,9 +83,14 @@ export default function MyPrediction({ onEdit, onBack }) {
               onClick={onEdit}
               icon="✏️"
             >
-              Editar
+              Editar mi pronóstico
             </Button>
           </div>
+        )}
+        {onEdit && !canEdit && (
+          <p className="text-[10px] text-center text-slate-500 mt-3">
+            🔒 No se puede editar después del partido
+          </p>
         )}
       </SectionCard>
 
@@ -89,23 +104,9 @@ export default function MyPrediction({ onEdit, onBack }) {
         predictions={predictions.filter((p) => p.user_id !== profile?.id)}
         loading={feedLoading}
         newIds={newIds}
+        liveMatch={liveMatch}
+        consensus={null}
       />
     </PageContainer>
-  )
-}
-
-function BackButton({ onClick }) {
-  return (
-    <motion.button
-      initial={{ opacity: 0, x: -8 }}
-      animate={{ opacity: 1, x: 0 }}
-      onClick={onClick}
-      className="self-start inline-flex items-center gap-1.5 text-sm text-slate-400 hover:text-white transition-colors"
-    >
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M19 12H5M12 19l-7-7 7-7" />
-      </svg>
-      Volver
-    </motion.button>
   )
 }

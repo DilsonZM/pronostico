@@ -14,12 +14,7 @@ import { useLiveData } from '../context/LiveDataContext'
 import { useAuth } from '../context/AuthContext'
 import { MATCH_DEADLINE } from '../lib/supabase'
 
-/**
- * Prediction — floating island layout
- * Reads live data from shared LiveDataContext (single subscription).
- * The chat bot is available globally via the floating action button.
- */
-export default function Prediction() {
+export default function Prediction({ onViewPrediction }) {
   const { profile } = useAuth()
   const { prediction, loading: predLoading } = usePrediction()
   const {
@@ -50,18 +45,18 @@ export default function Prediction() {
   return (
     <PageContainer>
       <motion.div
-        initial={{ opacity: 0, y: -6 }}
-        animate={{ opacity: 1, y: 0 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
         className="text-center"
       >
-        <p className="text-[10px] font-semibold tracking-[0.22em] uppercase text-slate-500 mb-3">
+        <p className="text-[10px] font-semibold tracking-[0.22em] uppercase text-slate-500 mb-2">
           Hola, {profile?.display_name}
         </p>
       </motion.div>
 
-      <div className="rounded-3xl bg-slate-900/55 border border-white/8 backdrop-blur-xl p-5 sm:p-6 shadow-[0_8px_30px_rgba(0,0,0,0.35)]">
+      <SectionCard delay={0.05}>
         <MatchHero kickoffISO={MATCH_DEADLINE.toISOString()} />
-      </div>
+      </SectionCard>
 
       <LiveMatchStrip
         match={liveMatch}
@@ -77,6 +72,16 @@ export default function Prediction() {
       {prediction ? (
         <SectionCard title="Tu pronóstico" delay={0.05}>
           <MyPredictionCard prediction={prediction} />
+          {onViewPrediction && !isFinished && (
+            <div className="mt-4 pt-4 border-t border-white/5">
+              <button
+                onClick={onViewPrediction}
+                className="w-full text-center text-xs text-slate-400 hover:text-white transition-colors py-1.5"
+              >
+                Ver detalles
+              </button>
+            </div>
+          )}
         </SectionCard>
       ) : (
         <SectionCard title="¿Cómo terminará?" delay={0.05}>

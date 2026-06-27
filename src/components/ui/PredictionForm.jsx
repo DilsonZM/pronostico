@@ -5,14 +5,7 @@ import Button from './Button'
 import ScoreStepper from './ScoreStepper'
 import { usePrediction } from '../../context/PredictionContext'
 
-/**
- * PredictionForm
- *
- * The score entry experience. Always shows the same two flags + steppers
- * with a clear, single CTA. When the user already has a prediction, it
- * becomes "edit mode".
- */
-export default function PredictionForm({ onSaved, compact = false }) {
+export default function PredictionForm({ onSaved }) {
   const { prediction, saving, deadlinePassed, savePrediction } = usePrediction()
   const [colombiaScore, setColombiaScore] = useState(0)
   const [portugalScore, setPortugalScore] = useState(0)
@@ -40,7 +33,7 @@ export default function PredictionForm({ onSaved, compact = false }) {
     onSaved?.()
   }
 
-  if (deadlinePassed && !compact) {
+  if (deadlinePassed) {
     return (
       <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-5 text-center">
         <p className="text-amber-300 font-semibold text-sm">⏰ El plazo de pronósticos cerró</p>
@@ -54,23 +47,19 @@ export default function PredictionForm({ onSaved, compact = false }) {
 
   return (
     <form onSubmit={handleSave} className="w-full">
-      {!compact && isUpdate && (
-        <p className="text-[10px] sm:text-xs font-semibold tracking-[0.22em] uppercase text-slate-400 text-center mb-2">
-          {readOnly ? 'Tu pronóstico guardado' : 'Edita tu marcador'}
-        </p>
-      )}
-
-      {/* Score row */}
-      <div className="flex items-center justify-between gap-2 sm:gap-4 mb-5">
-        <TeamSide flag="🇨🇴" code="COL" color="text-yellow-300" />
-        <div className="flex items-center gap-2 sm:gap-3">
+      <div className="flex items-center justify-between gap-2 sm:gap-3 mb-4">
+        <div className="flex flex-col items-center gap-1">
+          <span className="text-xl" aria-hidden>🇨🇴</span>
           <ScoreStepper
             value={colombiaScore}
             onChange={setColombiaScore}
             teamColor="colombia-yellow"
             disabled={readOnly}
           />
-          <span className="font-display text-2xl sm:text-3xl font-bold text-slate-600">–</span>
+        </div>
+        <span className="font-mono text-2xl sm:text-3xl text-slate-600 font-light mt-6">–</span>
+        <div className="flex flex-col items-center gap-1">
+          <span className="text-xl" aria-hidden>🇵🇹</span>
           <ScoreStepper
             value={portugalScore}
             onChange={setPortugalScore}
@@ -78,20 +67,14 @@ export default function PredictionForm({ onSaved, compact = false }) {
             disabled={readOnly}
           />
         </div>
-        <TeamSide flag="🇵🇹" code="POR" color="text-emerald-400" />
       </div>
 
       {error && (
-        <motion.p
-          initial={{ opacity: 0, y: -4 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-3 text-sm text-red-400 text-center"
-        >
+        <p className="mb-3 text-sm text-red-400 text-center">
           {error}
-        </motion.p>
+        </p>
       )}
 
-      {/* Action */}
       {readOnly ? (
         <Button
           type="button"
@@ -115,16 +98,5 @@ export default function PredictionForm({ onSaved, compact = false }) {
         </Button>
       )}
     </form>
-  )
-}
-
-function TeamSide({ flag, code, color }) {
-  return (
-    <div className="flex flex-col items-center gap-1 min-w-[56px]">
-      <span className="text-3xl sm:text-4xl leading-none">{flag}</span>
-      <span className={`font-display text-[10px] sm:text-xs font-bold tracking-widest ${color}`}>
-        {code}
-      </span>
-    </div>
   )
 }

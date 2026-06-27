@@ -146,6 +146,21 @@ export function PredictionProvider({ children }) {
     }
   }, [])
 
+  // Delete a prediction (used by admin to clean up)
+  const deletePrediction = useCallback(async (id) => {
+    try {
+      const { error } = await supabase
+        .from('predictions')
+        .delete()
+        .eq('id', id)
+      if (error) throw error
+      return { error: null }
+    } catch (err) {
+      console.error('Error deleting prediction:', err)
+      return { error: err }
+    }
+  }, [])
+
   const value = {
     prediction,
     loading,
@@ -154,6 +169,7 @@ export function PredictionProvider({ children }) {
     savePrediction,
     getAllPredictions,
     getPredictionCount,
+    deletePrediction,
     fetchPrediction,
   }
 
